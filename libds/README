@@ -1,0 +1,11 @@
+This is a library of data structures.
+
+slist:
+	Singly linked list.
+
+	-DSIMPLE_VERSION - With this definistion, the slist structure will be defined as
+				struct slist {
+					struct slist_node *head;
+				};
+			   which has only one member, the head pointer.
+
