@@ -1,5 +1,6 @@
-CFLAGS := -Wall
-LIST_INCS := slist.h
+CFLAGS := -Wall -I../includes
+#LIST_INCS := slist.h
+LIST_INCS := ../incluses/slist.h
 LIST_SRCS := slist.c
 LIST_DEPS := $(LIST_INCS) $(LIST_SRCS)
 PROB_INCS := prob.h
