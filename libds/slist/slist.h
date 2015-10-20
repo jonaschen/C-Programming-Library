@@ -27,9 +27,9 @@ struct slist {
 
 void slist_init(struct slist *list, void (*free_data)(void *data));
 void slist_destroy(struct slist *list);
-struct slist_node *slist_alloc_node(const void *data);
-void slist_ins_next(struct slist *list, struct slist_node *node, const void *data);
-void slist_ins_after(struct slist *list, struct slist_node *old, struct slist_node *ins);
+struct slist_node *slist_alloc_node(void *data);
+int slist_ins_next(struct slist *list, struct slist_node *node, const void *data);
+int slist_ins_after(struct slist *list, struct slist_node *old, struct slist_node *ins);
 int slist_rem_next(struct slist *list, struct slist_node *node, void **data);
 
 static int slist_size(const struct slist *list)
