@@ -4,7 +4,7 @@ References:
 This is a library of data structures.
 
 slist:
-	Singly linked list.
+	Singly-linked list.
 
 	-DSIMPLE_VERSION - With this definistion, the slist structure will be defined as
 				struct slist {
@@ -12,3 +12,5 @@ slist:
 				};
 			   which has only one member, the head pointer.
 
+dlist:
+	Doubly-linked list.

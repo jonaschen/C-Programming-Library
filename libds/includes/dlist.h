@@ -20,6 +20,14 @@ struct dlist {
 };
 
 
+void dlist_init(struct dlist *list, void (*free_data)(void *data));
+void dlist_destroy(struct dlist *list);
+struct dlist_node *dlist_alloc_node(void *data);
+
+int dlist_ins_next(struct dlist *list, struct dlist_node *node, const void *data);
+int dlist_ins_prev(struct dlist *list, struct dlist_node *node, const void *data);
+int dlist_remove(struct dlist *list, struct dlist_node *node, void **data);
+
 
 #define dlist_size(list)	((list)->size)
 #define dlist_head(list)	((list)->head)

@@ -1,6 +1,6 @@
 PATH_SRC := ./src
 PATH_EXER := ./exercise
-PATH_OUTPUT := ./output
+PATH_OUTPUT := ../output
 PATH_INCL := ../includes
 
 CFLAGS := -Wall -I$(PATH_INCL)
