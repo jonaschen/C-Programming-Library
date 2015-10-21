@@ -1,25 +1,5 @@
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
-
-int getline_j(char *buf, int size, FILE *stream)
-{
-	int c, cnt = 0;
-	char *ptr = buf;
-
-	while ((c = fgetc(stream)) != EOF) {
-		ptr[cnt++] = (char) c;
-		if (cnt == size - 1)
-			break;
-		if (c == '\n')
-			break;
-	}
-
-	ptr[cnt] = '\0';
-
-	return cnt;
-}
 
 enum state_t {
 	IN_WORD = 0,
@@ -67,20 +47,4 @@ int getwords(char *str, size_t len, char ***pwords)
 
 	*pwords = words;
 	return ret;
-}
-
-#define BUF_SIZE 1024
-int main(int argc, char *argv[])
-{
-	int len, n, i;
-	char buf[1024];
-	char **words;
-
-	while ((len = getline_j(buf, BUF_SIZE, stdin)) > 0) {
-		n = getwords(buf, (size_t) len, &words);
-		for (i = 0; i < n; i++)
-			printf("word:%s\n", words[i]);
-	}
-
-	return 0;
 }
