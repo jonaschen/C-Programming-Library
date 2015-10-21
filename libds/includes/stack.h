@@ -1,14 +1,32 @@
 #ifndef __STACK_H
 #define __STACK_H
 
-#include "list.h"
+#include <stdlib.h>
 
-typedef struct slist stact_t;
+struct stack_elem {
+	struct stack_elem *next;
 
-#define stack_init	slist_init
-#define stack_destroy 	slist_destroy
+	void *data;
+};
 
-int stack_push(stack_t *stack, const void *data);
-int stack_pop(stack_t *stack, void **data);
+struct stack_t {
+	int depth;
+
+	struct stack_elem *top;
+	struct stack_elem *bottom;
+
+	void (*free_data)(void *data);
+};
+
+
+void stack_init(struct stack_t *stack, void (*free_data)(void *data));
+void stack_destroy(struct stack_t *stack);
+struct stack_elem *stack_alloc_elem(void *data);
+
+int stack_push(struct stack_t *stack, const void *data);
+int stack_pop(struct stack_t *stack, void **data);
+
+#define stack_peek(stack)	((stack)->top == NULL ? NULL : (stack)->top->data)
+#define stack_size(stack)	((stack)->depth)
 
 #endif
