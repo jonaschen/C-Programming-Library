@@ -27,6 +27,6 @@ int stack_push(struct stack_t *stack, const void *data);
 int stack_pop(struct stack_t *stack, void **data);
 
 #define stack_peek(stack)	((stack)->top == NULL ? NULL : (stack)->top->data)
-#define stack_size(stack)	((stack)->depth)
+#define stack_size(stack)	((stack) == NULL ? (stack)->depth : -1)
 
 #endif

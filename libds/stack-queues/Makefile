@@ -1,6 +1,13 @@
-
-stack:
-	gcc -c src/stack.c -I../includes -o ../output/stack.o
+PATH_SRC := src
+PATH_OUTPUT := ../output
+SRC = stack.c queue.c
+CC := gcc
+CFLAGS := -Wall
+INCLUDE := ../includes
+OBJ = $(addsuffix .o, $(basename $(SRC)))
 
 .PHONY: all
-all: stack
+all: $(OBJ)
+
+%.o:	$(PATH_SRC)/%.c
+	$(CC) $(CFLAGS) -o $(PATH_OUTPUT)/$@ -c $< -I$(INCLUDE)

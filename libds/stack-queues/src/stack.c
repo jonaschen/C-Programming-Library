@@ -12,11 +12,11 @@ void stack_init(struct stack_t *stack, void (*free_data)(void *data))
 
 void stack_destroy(struct stack_t *stack)
 {
-	void *data;
+	void *data = NULL;
 
 	while (stack->depth) {
 		stack_pop(stack, &data);
-		if (stack->free_data)
+		if (stack->free_data && data)
 			stack->free_data(data);
 	}
 }
@@ -57,6 +57,9 @@ int stack_push(struct stack_t *stack, const void *data)
 int stack_pop(struct stack_t *stack, void **data)
 {
 	struct stack_elem *top;
+
+	if (data)
+		*data = NULL;
 
 	if (!stack || stack_size(stack) == 0)
 		return -1;

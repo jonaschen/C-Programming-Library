@@ -12,7 +12,7 @@ void dlist_init(struct dlist *list, void (*free_data)(void *data))
 
 void dlist_destroy(struct dlist *list)
 {
-	void *data;
+	void *data = NULL;
 
 	if (!list)
 		return;
@@ -111,6 +111,9 @@ int dlist_ins_prev(struct dlist *list, struct dlist_node *node, const void *data
 int dlist_remove(struct dlist *list, struct dlist_node *node, void **data)
 {
 	struct dlist_node *old = node;
+
+	if (data)
+		*data = NULL;
 
 	if (!list || !node || dlist_size(list) == 0)
 		return -1;
