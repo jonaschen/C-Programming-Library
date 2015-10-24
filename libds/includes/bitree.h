@@ -1,7 +1,7 @@
 #ifndef __BITREE_H
 #define __BITREE_H
 
-#include <stdlib.h>
+#include "common.h"
 
 struct bitree_node {
 	void *data;

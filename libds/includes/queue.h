@@ -1,7 +1,7 @@
 #ifndef __QUEUE_H
 #define __QUEUE_H
 
-#include <stdlib.h>
+#include "common.h"
 
 struct queue_elem {
 	struct queue_elem *next;

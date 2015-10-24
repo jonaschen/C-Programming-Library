@@ -1,7 +1,7 @@
 #ifndef __STACK_H
 #define __STACK_H
 
-#include <stdlib.h>
+#include "common.h"
 
 struct stack_elem {
 	struct stack_elem *next;
@@ -28,5 +28,7 @@ int stack_pop(struct stack_t *stack, void **data);
 
 #define stack_peek(stack)	((stack)->top == NULL ? NULL : (stack)->top->data)
 #define stack_size(stack)	((stack) == NULL ? (stack)->depth : -1)
+
+#define stack_is_empty(stack)	((stack)->top == NULL)
 
 #endif

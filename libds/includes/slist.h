@@ -1,7 +1,7 @@
 #ifndef __SLIST_H
 #define __SLIST_H
 
-#include <stdlib.h>
+#include "common.h"
 
 struct slist_node {
 	struct slist_node *next;

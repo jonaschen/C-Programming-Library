@@ -1,7 +1,8 @@
 #include "slist.h"
 
 void slist_init(struct slist *list, void (*free_data)(void *data))
-{ if (!list)
+{
+	if (!list)
 		return;
 
 	list->head = NULL;
@@ -25,6 +26,8 @@ void slist_destroy(struct slist *list)
 		if (list->free_data && data)
 			list->free_data(data);
 	}
+
+	memset(list, 0, sizeof(struct slist));
 }
 
 struct slist_node *slist_alloc_node(void *data)
@@ -107,3 +110,4 @@ int slist_rem_next(struct slist *list, struct slist_node *node, void **data)
 
 	return 0;
 }
+

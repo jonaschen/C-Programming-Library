@@ -22,6 +22,8 @@ void queue_destroy(struct queue_t *q)
 		if (q->free_data && data)
 			q->free_data(data);
 	}
+
+	memset(q, 0, sizeof(struct queue_t));
 }
 
 struct queue_elem *queue_alloc_elem(void *data)

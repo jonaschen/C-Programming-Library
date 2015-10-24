@@ -22,6 +22,8 @@ void dlist_destroy(struct dlist *list)
 		if (list->free_data && data)
 			list->free_data(data);
 	}
+
+	memset(list, 0, sizeof(struct dlist));
 }
 
 struct dlist_node *dlist_alloc_node(void *data)

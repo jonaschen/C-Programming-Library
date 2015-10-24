@@ -1,7 +1,7 @@
 #ifndef __DLIST_H
 #define __DLIST_H
 
-#include <stdlib.h>
+#include "common.h"
 
 struct dlist_node {
 	struct dlist_node *prev;

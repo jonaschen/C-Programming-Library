@@ -23,7 +23,7 @@ void preorder_traversal(struct bitree *tree)
 
 	stack_init(parent, NULL);
 
-	while (stack_size(parent) || node) {
+	while (!stack_is_empty(parent) || node) {
 		if (node) {
 			visit(node);
 			if (node->right)
@@ -43,7 +43,7 @@ void inorder_traversal(struct bitree *tree)
 
 	stack_init(parent, NULL);
 
-	while (stack_size(parent) || node) {
+	while (!stack_is_empty(parent) || node) {
 		if (node) {
 			stack_push(parent, (const void *) node);
 			node = node->left;
@@ -64,7 +64,7 @@ void postorder_traversal(struct bitree *tree)
 
 	stack_init(parent, NULL);
 
-	while (stack_size(parent) || node) {
+	while (!stack_is_empty(parent) || node) {
 		if (node) {
 			stack_push(parent, (const void *) node);
 			node = node->left;

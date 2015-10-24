@@ -14,11 +14,13 @@ void stack_destroy(struct stack_t *stack)
 {
 	void *data = NULL;
 
-	while (stack->depth) {
+	while (!stack_is_empty(stack)) {
 		stack_pop(stack, &data);
 		if (stack->free_data && data)
 			stack->free_data(data);
 	}
+
+	memset(stack, 0, sizeof(struct stack_t));
 }
 
 struct stack_elem *stack_alloc_elem(void *data)
@@ -61,7 +63,7 @@ int stack_pop(struct stack_t *stack, void **data)
 	if (data)
 		*data = NULL;
 
-	if (!stack || stack_size(stack) == 0)
+	if (!stack || stack_is_empty(stack))
 		return -1;
 
 	top = stack->top;
