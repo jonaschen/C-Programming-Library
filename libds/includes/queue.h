@@ -25,6 +25,6 @@ int queue_enqueue(struct queue_t *q, const void *data);
 int queue_dequeue(struct queue_t *q, void **data);
 
 #define queue_peek(q)	((q)->head == NULL ? NULL : (q)->head->data)
-#define queue_size(q)	((q) == NULL ? (q)->size : -1)
+#define queue_size(q)	((q) == NULL ? -1: (q)->size)
 
 #endif

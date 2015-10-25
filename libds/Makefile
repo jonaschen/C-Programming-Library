@@ -4,7 +4,6 @@ DIR_DLIST := dlist
 DIR_STACK_QUEUE := stack-queues
 DIR_BITREE := bitree
 
-
 .PHONY: all
 all: objdir obj-slist obj-dlist obj-sq obj-bitree
 

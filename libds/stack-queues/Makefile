@@ -2,7 +2,7 @@ PATH_SRC := src
 PATH_OUTPUT := ../output
 SRC = stack.c queue.c
 CC := gcc
-CFLAGS := -Wall
+CFLAGS := -Wall -g
 INCLUDE := ../includes
 OBJ = $(addsuffix .o, $(basename $(SRC)))
 
