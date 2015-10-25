@@ -34,7 +34,7 @@ void bitree_destroy(struct bitree *tree);
 int preorder_traversal(struct bitree_node *root, int (*visit)(struct bitree_node *));
 int inorder_traversal(struct bitree_node *root, int (*visit)(struct bitree_node *));
 int postorder_traversal(struct bitree_node *root, int (*visit)(struct bitree_node *));
-int levelorder_traversal(struct bitree_node *root, int (*visit)(struct bitree_node *));
+int levelorder_traversal(struct bitree_node *root, int (*visit)(struct bitree_node *), int *depth);
 
 void bitree_rem_left(struct bitree *tree, struct bitree_node *node);
 void bitree_rem_right(struct bitree *tree, struct bitree_node *node);

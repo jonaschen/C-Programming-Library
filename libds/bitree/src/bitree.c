@@ -114,14 +114,17 @@ int postorder_traversal(struct bitree_node *root, int (*visit)(struct bitree_nod
 	return cnt;
 }
 
-int levelorder_traversal(struct bitree_node *root, int (*visit)(struct bitree_node *))
+int levelorder_traversal(struct bitree_node *root, int (*visit)(struct bitree_node *), int *depth)
 {
 	struct queue_t node_queue, *q = &node_queue;
 	struct bitree_node *node = NULL;
-	int cnt = 0;
+	int cnt = 0, level = 0;
+	struct bitree_node *most_right = root, *next_level = root;
 
-	if (visit == NULL)
+	if (visit == NULL || !root)
 		return -1;
+
+	level = 0;
 
 	queue_init(q, NULL);
 	queue_enqueue(q, (const void *) root);
@@ -130,12 +133,26 @@ int levelorder_traversal(struct bitree_node *root, int (*visit)(struct bitree_no
 		queue_dequeue(q, (void **) &node);
 		visit(node);
 		cnt++;
-		if (node->left)
+		if (node->left) {
 			queue_enqueue(q, node->left);
+			if (node == most_right)
+				next_level = node->left;
+		}
 
-		if (node->right)
+		if (node->right) {
 			queue_enqueue(q, node->right);
+			if (node == most_right)
+				next_level = node->right;
+		}
+
+		if (most_right != next_level) {
+			level++;
+			most_right = next_level;
+		}
 	}
+
+	if (depth)
+		*depth = level;
 
 	return cnt;
 }
