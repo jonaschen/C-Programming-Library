@@ -1,5 +1,6 @@
 #include <stdio.h>
 
+#include "stack.h"
 #include "bitree.h"
 
 #define TEST_NUM	5
@@ -39,6 +40,64 @@ int visit(struct bitree_node *node)
 	return 0;
 }
 
+void print_path_sum(struct stack_t *paths)
+{
+	struct stack_elem *elem;
+	struct bitree_node *node;
+	struct stack_t path, *s = &path;
+	int sum = 0;
+	int data;
+
+	stack_init(s, NULL);
+
+	for (elem = paths->top; elem; elem = elem->next) {
+		node = (struct bitree_node *) elem->data;
+		data = *(int *) node->data;
+		sum += data;
+		stack_push(s, node->data);
+	}
+	while (stack_size(s)) {
+		stack_pop(s, (void **) &elem);
+		//if (elem && elem->data)
+		//	printf("%d, ", *(int *) elem->data);
+	}
+	printf("\n sum:%d\n", sum);
+}
+
+int print_paths(struct bitree_node *root)
+{
+	struct bitree_node *node = root, *dummy;
+	struct bitree_node *last_visited = NULL, *peek;
+	struct stack_t parent_stack, *parent = &parent_stack;
+	struct stack_t path_stack, *paths = &path_stack;
+	int cnt = 0;
+
+	stack_init(parent, NULL);
+	stack_init(paths, NULL);
+
+	while (!stack_is_empty(parent) || node) {
+		if (node) {
+			stack_push(parent, (const void *) node);
+			stack_push(paths, (const void *) node);
+			node = node->left;
+		} else {
+			peek = (struct bitree_node *) stack_peek(parent);
+			if (peek->right && last_visited != peek->right) {
+				node = peek->right;
+			} else {
+				if (!peek->right) {
+					printf("path %d:", ++cnt);
+					print_path_sum(paths);
+				}
+				stack_pop(parent, (void **) &last_visited);
+				stack_pop(paths, (void **) &dummy);
+			}
+		}
+	}
+
+	return cnt;
+}
+
 int min_value(struct bitree *tree)
 {
 	struct bitree_node *node = tree->root;
@@ -74,7 +133,10 @@ int main(int argc, char *argv[])
 	printf("levelorder: total %d nodes traversed, max depth:%d\n", cnt, depth);
 
 	min = min_value(tree);
-	printf("min valud: %d\n", min);
+	printf("min value: %d\n", min);
+
+	cnt = print_paths(tree->root);
+	printf("total %d paths\n", cnt);
 
 	exit(EXIT_SUCCESS);
 }
