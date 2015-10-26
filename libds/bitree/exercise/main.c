@@ -46,7 +46,7 @@ void print_path_sum(struct stack_t *paths)
 	struct bitree_node *node;
 	struct stack_t path, *s = &path;
 	int sum = 0;
-	int data;
+	int data, *pdata;
 
 	stack_init(s, NULL);
 
@@ -56,10 +56,10 @@ void print_path_sum(struct stack_t *paths)
 		sum += data;
 		stack_push(s, node->data);
 	}
-	while (stack_size(s)) {
-		stack_pop(s, (void **) &elem);
-		//if (elem && elem->data)
-		//	printf("%d, ", *(int *) elem->data);
+	while (!stack_is_empty(s)) {
+		stack_pop(s, (void **) &pdata);
+		if (pdata)
+			printf("%d, ", *pdata);
 	}
 	printf("\n sum:%d\n", sum);
 }

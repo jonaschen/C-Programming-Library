@@ -16,3 +16,12 @@ dlist:
 	Doubly-linked list.
 
 stack-queues:
+
+bitree:
+	Binary Tree
+
+chtbl:
+	Chained hash table
+
+bistree:
+	Binary Search Tree
