@@ -43,13 +43,59 @@ void chtbl_destroy(struct chtbl_t *htbl)
 	return;
 }
 
+/*
+ * even there is already node with the same data, insert anyway
+ */
 int chtbl_insert(struct chtbl_t *htbl, const void *data)
 {
 	void *temp;
 	int bucket, retval;
 
 	temp = (void *) data;
+
+	bucket = htbl->h(data) % htbl->buckets;
+
+	if ((retval = slist_ins_next(&htbl->table[bucket], NULL, data)) == 0)
+		htbl->size++;
+
+	return retval;
 }
 
-int chtbl_remove(struct chtbl_t *htbl, void **data);
-int chtbl_lookup(const struct chtbl_t *htbl, void **data);
+int chtbl_remove(struct chtbl_t *htbl, void **data)
+{
+	struct list_node *elem, *prev;
+	int bucket;
+
+	bucket = htbl->hash(*data) % htbl->buckets;
+	prev = NULL;
+
+	for (elem = list_head(&htbl->table[bucket]); elem; elem = slist_next(elem)) {
+		if (htbl->match(*data, list_data(elem))) {
+			if (slist_rem_next(&htbl->table[bucket], prev, data) == 0) {
+				htbl->size--;
+				return 0;
+			} else {
+				return -1;
+			}
+		}
+		prev = elem;
+	}
+	return -1;
+}
+
+int chtbl_lookup(const struct chtbl_t *htbl, void **data)
+{
+	struct slist_node *elem;
+	int bucket;
+
+	bucket = htbl->hash(*data) % htbl->buckets;
+
+	for (elem = list_head(&htbl->table[bucket]); elem; elem = slist_next(elem)) {
+		if (htbl->match(*data, slist_data(elem))) {
+			*data = list_data(elem);
+			return 0;
+		}
+	}
+
+	return -1;
+}
