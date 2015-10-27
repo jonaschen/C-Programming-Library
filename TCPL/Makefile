@@ -1,28 +1,23 @@
-PATH_OUTPUT := output
-PATH_SRC := src
-CFLAGS := -Wall
-SRC := grep.c getwords.c calculator.c
-CC := gcc
-INCLUDE = ../libds/includes
-LDADD = -L../libds/output -lds
+OUT_DIR := output
+MODULES := modules
+EXAMPLES := examples
 
-OBJ = $(addsuffix .o, $(basename $(SRC)))
 
 .PHONY: all
-all: objdir $(OBJ) grep calculator
+all: $(OUT_DIR) module-objs example-programs
 
-objdir:
-	mkdir -p $(PATH_OUTPUT)
+$(OUT_DIR):
+	mkdir -p $(OUT_DIR)
 
-%.o:	$(PATH_SRC)/%.c
-	$(CC) $(CFLAGS) -I$(INCLUDE) -o $(PATH_OUTPUT)/$@ -c $<
+module-objs:
+	$(MAKE) -C $(MODULES)
 
-grep: $(PATH_SRC)/grep.c
-	$(CC) $(CFLAGS) -o $(PATH_OUTPUT)/$@ $(PATH_OUTPUT)/$@.o
+example-programs:
+	$(MAKE) -C $(EXAMPLES)
 
-calculator:	$(PATH_SRC)/calculator.c
-	$(CC) $(CFLAGS) -o $(PATH_OUTPUT)/$@ $(PATH_OUTPUT)/$@.o $(LDADD)
+
+
 
 .PHONY: clean
 clean:
-	rm -rf $(PATH_OUTPUT)
+	rm -rf $(OUT_DIR)
