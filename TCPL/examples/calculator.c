@@ -31,86 +31,118 @@ static struct two_op_func_t funcs2[] = {
 	{NULL, NULL}
 };
 
+static struct stack_t char_stack;
+static struct stack_t op_stack;
+
 void math_func(char *name)
 {
 	int i;
+	double *op1, *op2;
+	struct stack_t *opbuf = &op_stack;
 
-//	for (i = 0; funcs[i].name != NULL; i++) {
-//		if (!strncmp(name, funcs[i].name, strlen(funcs[i].name)))
-//			break;
-//	}
-//
-//	if (funcs[i].name != NULL) {
-//		push(funcs[i].func(pop()));
-//		return;
-//	}
-//
-//	for (i = 0; funcs2[i].name != NULL; i++) {
-//		if (!strncmp(name, funcs2[i].name, strlen(funcs2[i].name)))
-//			break;
-//	}
-//
-//	if (funcs2[i].name != NULL) {
-//		double op1 = pop();
-//		push(funcs2[i].func(op1, pop()));
-//		return;
-//	}
+	for (i = 0; funcs[i].name != NULL; i++) {
+		if (!strncmp(name, funcs[i].name, strlen(funcs[i].name)))
+			break;
+	}
+
+	if (funcs[i].name != NULL) {
+		stack_pop(opbuf, (void **) &op1);
+		*op1 = funcs[i].func(*op1);
+		stack_push(opbuf, op1);
+		return;
+	}
+
+	for (i = 0; funcs2[i].name != NULL; i++) {
+		if (!strncmp(name, funcs2[i].name, strlen(funcs2[i].name)))
+			break;
+	}
+
+	if (funcs2[i].name != NULL) {
+		stack_pop(opbuf, (void **) &op1);
+		stack_pop(opbuf, (void **) &op2);
+		*op1 = funcs2[i].func(*op1, *op2);
+		stack_push(opbuf, op1);
+		free(op2);
+		return;
+	}
 }
 
 int getop(char *s);
 int getch(void);
 void ungetch(int c);
 
-static struct stack_t char_stack;
 int main(int argc, char *argv[])
 {
 	int type;
 	char buf[BUF_SIZE];
 	struct stack_t *iobuf = &char_stack;
-	double op2;
+	struct stack_t *opbuf = &op_stack;
+	double *op1;
+	double *op2;
 
 	stack_init(iobuf, NULL);
+	stack_init(opbuf, NULL);
 
 	while ((type = getop(buf)) != EOF) {
-//		switch (type) {
-//		case MATH:
-//			math_func(buf);
-//			break;
-//		case NUMBER:
-//			push(atof(buf));
-//			break;
-//		case '+':
-//			push(pop() + pop());
-//			break;
-//		case '*':
-//			push(pop() * pop());
-//			break;
-//		case '-':
-//			op2 = pop();
-//			push(pop() - op2);
-//			break;
-//		case '/':
-//			op2 = pop();
-//			if (op2 != 0.0)
-//				push(pop() / op2);
-//			else
-//				printf("error: zero divisor\n");
-//			break;
-//		case '%':
-//			op2 = pop();
-//			if (op2 != 0.0) {
-//				int op1 = (int) pop();
-//				push((double)(op1 % ((int) op2)));
-//			} else
-//				printf("error: zero divisor\n");
-//			break;
-//		case '\n':
-//			printf("\t%.8g\n", pop());
-//			break;
-//		default:
-//			fprintf(stderr, "error: unknow command %s\n", buf);
-//			break;
-//		}
+		switch (type) {
+		case MATH:
+			math_func(buf);
+			break;
+		case NUMBER:
+			op1 = (double *) malloc(sizeof(double));
+			*op1 = atof(buf);
+			stack_push(opbuf, op1);
+			break;
+		case '+':
+			stack_pop(opbuf, (void **) &op2);
+			stack_pop(opbuf, (void **) &op1);
+			*op1 = *op1 + *op2;
+			free(op2);
+			stack_push(opbuf, op1);
+			break;
+		case '*':
+			stack_pop(opbuf, (void **) &op2);
+			stack_pop(opbuf, (void **) &op1);
+			*op1 = *op1 * *op2;
+			free(op2);
+			stack_push(opbuf, op1);
+			break;
+		case '-':
+			stack_pop(opbuf, (void **) &op2);
+			stack_pop(opbuf, (void **) &op1);
+			*op1 = *op1 - *op2;
+			free(op2);
+			stack_push(opbuf, op1);
+			break;
+		case '/':
+			stack_pop(opbuf, (void **) &op2);
+			if (*op2 != 0.0) {
+				stack_pop(opbuf, (void **) &op1);
+				*op1 = *op1 / *op2;
+				free(op2);
+				stack_push(opbuf, op1);
+			} else
+				printf("error: zero divisor\n");
+			break;
+		case '%':
+			stack_pop(opbuf, (void **) &op2);
+			if (*op2 != 0.0) {
+				stack_pop(opbuf, (void **) &op1);
+				*op1 = ((int) *op1) % ((int) *op2);
+				free(op2);
+				stack_push(opbuf, op1);
+			} else
+				printf("error: zero divisor\n");
+			break;
+		case '\n':
+			stack_pop(opbuf, (void **) &op1);
+			printf("\t%.8g\n", *op1);
+			free(op1);
+			break;
+		default:
+			fprintf(stderr, "error: unknow command %s\n", buf);
+			break;
+		}
 	}
 
 	return 0;
@@ -151,6 +183,10 @@ int getop(char *s)
 	if (isdigit(c)) {
 		while (isdigit(s[++i] = c = getch()))
 			;
+		//do {
+		//	c = getch();
+		//	s[++i] = c;
+		//} while (isdigit(c));
 	}
 
 	if (c == '.') {
@@ -174,6 +210,7 @@ int getch(void)
 	if (stack_size(s) > 0) {
 		stack_pop(s, (void **) &data);
 		c = *data;
+		free(data);
 	} else 
 		c = getchar();
 
@@ -186,6 +223,7 @@ void ungetch(int c)
 	int *data;
 
 	data = (int *) malloc(sizeof(int));
+	*data = c;
 	stack_push(s, data);
 }
 
