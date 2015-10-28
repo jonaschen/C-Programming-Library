@@ -27,4 +27,4 @@ libds.a: $(OUTPUT)/slist.o $(OUTPUT)/dlist.o $(OUTPUT)/stack.o $(OUTPUT)/queue.o
 
 .PHONY: clean
 clean:
-	rm -rf $(OUTPUT)
+	rm -rf $(OUTPUT)/*
