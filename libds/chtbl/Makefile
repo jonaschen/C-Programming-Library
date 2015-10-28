@@ -1,24 +1,24 @@
-PATH_SRC := ./src
-PATH_EXER := ./exercise
-PATH_OUTPUT := ../output
-PATH_INCL := ../includes
+SRC_DIR := ./src
+#PROB_DIR := ./exercise
 
-CFLAGS := -Wall -I$(PATH_INCL)
+#P = chtbl_exercise
 
-LIST_INCS := $(PATH_INCL)/slist.h
-LIST_SRCS := $(PATH_SRC)/slist.c
-LIST_DEPS := $(LIST_INCS) $(LIST_SRCS)
-
-PROB_INCS := $(PATH_EXER)/prob.h
-PROB_SRCS := $(PATH_EXER)/main.c $(PATH_EXER)/count.c
-PROB_DEPS := $(PROB_INCS) $(PROB_SRCS)
-
-P := list_exercise
 
 .PHONY: all
-all: $(PROB_DEPS) $(LIST_DEPS)
-	gcc $(CFLAGS) $(PROB_SRCS) $(LIST_SRCS) -o $(PATH_OUTPUT)/$(P)
+#all: obj-src obj-prob
+all: obj-src
 
-.PHONY: clean
-clean:
-	rm -f $(PATH_OUTPUT)/$(P)
+
+obj-src:
+	$(MAKE) -C $(SRC_DIR)
+
+#obj-prob:
+#	$(MAKE) P=$(P) -C $(PROB_DIR)
+
+
+
+
+#.PHONY: clean
+#clean:
+#	rm -f $(PATH_OUTPUT)/$(P)
+#	$(MAKE) -C $(PROB_DIR) clean

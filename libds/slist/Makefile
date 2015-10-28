@@ -12,7 +12,7 @@ obj-src:
 	$(MAKE) -C $(SRC_DIR)
 
 obj-prob:
-	$(MAKE) P=$(P) -C $(SRC_DIR)
+	$(MAKE) P=$(P) -C $(PROB_DIR)
 
 
 
@@ -20,3 +20,4 @@ obj-prob:
 .PHONY: clean
 clean:
 	rm -f $(PATH_OUTPUT)/$(P)
+	$(MAKE) -C $(PROB_DIR) clean

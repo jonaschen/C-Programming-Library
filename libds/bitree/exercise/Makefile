@@ -1,12 +1,12 @@
-obj-prob += count.o main.o
-obj-slist += slist.o
+obj-prob += main.o
 
-P := list_problems
+P := bitree_problems
 
 OUT_DIR = ../../output
 INCLUDE = ../../includes
 CFLAGS := -g
 CC := gcc
+LDADD := $(OUT_DIR)/bitree.o $(OUT_DIR)/stack.o $(OUT_DIR)/queue.o
 
 .PHONY: all
 all: $(obj-prob) $(P)
@@ -15,7 +15,7 @@ all: $(obj-prob) $(P)
 	$(CC) $(CFLAGS) -I$(INCLUDE) -o $@ -c $<
 
 $(P): $(obj-prob)
-	$(CC) $(CFLAGS) -o $@ $? $(OUT_DIR)/$(obj-slist)
+	$(CC) $(CFLAGS) -o $@ $? $(LDADD)
 	mv $@ $(OUT_DIR)
 
 

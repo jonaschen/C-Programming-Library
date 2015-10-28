@@ -29,6 +29,8 @@ int chtbl_init(struct chtbl_t *htbl, int buckets, int (*h)(const void *key),
 
 void chtbl_destroy(struct chtbl_t *htbl)
 {
+	int i;
+
 	if (!htbl)
 		return;
 
@@ -53,7 +55,7 @@ int chtbl_insert(struct chtbl_t *htbl, const void *data)
 
 	temp = (void *) data;
 
-	bucket = htbl->h(data) % htbl->buckets;
+	bucket = htbl->hash(data) % htbl->buckets;
 
 	if ((retval = slist_ins_next(&htbl->table[bucket], NULL, data)) == 0)
 		htbl->size++;
@@ -63,14 +65,14 @@ int chtbl_insert(struct chtbl_t *htbl, const void *data)
 
 int chtbl_remove(struct chtbl_t *htbl, void **data)
 {
-	struct list_node *elem, *prev;
+	struct slist_node *elem, *prev;
 	int bucket;
 
 	bucket = htbl->hash(*data) % htbl->buckets;
 	prev = NULL;
 
-	for (elem = list_head(&htbl->table[bucket]); elem; elem = slist_next(elem)) {
-		if (htbl->match(*data, list_data(elem))) {
+	for (elem = slist_head(&htbl->table[bucket]); elem; elem = slist_next(elem)) {
+		if (htbl->match(*data, slist_data(elem))) {
 			if (slist_rem_next(&htbl->table[bucket], prev, data) == 0) {
 				htbl->size--;
 				return 0;
@@ -90,9 +92,9 @@ int chtbl_lookup(const struct chtbl_t *htbl, void **data)
 
 	bucket = htbl->hash(*data) % htbl->buckets;
 
-	for (elem = list_head(&htbl->table[bucket]); elem; elem = slist_next(elem)) {
+	for (elem = slist_head(&htbl->table[bucket]); elem; elem = slist_next(elem)) {
 		if (htbl->match(*data, slist_data(elem))) {
-			*data = list_data(elem);
+			*data = slist_data(elem);
 			return 0;
 		}
 	}

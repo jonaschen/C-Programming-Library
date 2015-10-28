@@ -111,6 +111,26 @@ int min_value(struct bitree *tree)
 	return *((int *) node->data);
 }
 
+void mirror(struct bitree_node *root)
+{
+	struct bitree_node *temp;
+
+	if (!root)
+		return;
+
+	if (root->left)
+		mirror(root->left);
+
+	if (root->right)
+		mirror(root->right);
+
+	temp = root->right;
+	root->right = root->left;
+	root->left = temp;
+
+	return;
+}
+
 int main(int argc, char *argv[])
 {
 	struct bitree extree, *tree = &extree;
@@ -119,6 +139,7 @@ int main(int argc, char *argv[])
 	bitree_init(tree, free);
 
 	build123(tree);
+	mirror(tree->root);
 
 	cnt = preorder_traversal(tree->root, visit);
 	printf("preorder: total %d nodes traversed\n", cnt);
@@ -131,6 +152,25 @@ int main(int argc, char *argv[])
 
 	cnt = levelorder_traversal(tree->root, visit, &depth);
 	printf("levelorder: total %d nodes traversed, max depth:%d\n", cnt, depth);
+
+	mirror(tree->root);
+
+
+	cnt = preorder_traversal(tree->root, visit);
+	printf("preorder: total %d nodes traversed\n", cnt);
+
+	cnt = inorder_traversal(tree->root, visit);
+	printf("inorder: total %d nodes traversed\n", cnt);
+
+	cnt = postorder_traversal(tree->root, visit);
+	printf("postorder: total %d nodes traversed\n", cnt);
+
+	cnt = levelorder_traversal(tree->root, visit, &depth);
+	printf("levelorder: total %d nodes traversed, max depth:%d\n", cnt, depth);
+	
+
+
+
 
 	min = min_value(tree);
 	printf("min value: %d\n", min);

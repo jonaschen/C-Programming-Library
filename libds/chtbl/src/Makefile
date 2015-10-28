@@ -1,11 +1,14 @@
-obj-slist += slist.o
+obj-chtbl += chtbl.o
+
+OBJS := $(obj-chtbl)
 
 OUT_DIR = ../../output
 INCLUDE = ../../includes
 CFLAGS := -g
 
 .PHONY: all
-all: $(obj-slist)
+all: $(OBJS)
 
 %.o: %.c
 	$(CC) $(CFLAGS) -I$(INCLUDE) -o $(OUT_DIR)/$@ -c $<
+

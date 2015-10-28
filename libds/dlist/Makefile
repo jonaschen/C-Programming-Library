@@ -1,6 +1,24 @@
+SRC_DIR := ./src
+#PROB_DIR := ./exercise
 
-dlist:
-	gcc -c src/dlist.c -I../includes -o ../output/dlist.o
+#P = dlist_exercise
+
 
 .PHONY: all
-all: dlist
+#all: obj-src obj-prob
+all: obj-src
+
+
+obj-src:
+	$(MAKE) -C $(SRC_DIR)
+
+#obj-prob:
+#	$(MAKE) P=$(P) -C $(PROB_DIR)
+
+
+
+
+#.PHONY: clean
+#clean:
+#	rm -f $(PATH_OUTPUT)/$(P)
+#	$(MAKE) -C $(PROB_DIR) clean

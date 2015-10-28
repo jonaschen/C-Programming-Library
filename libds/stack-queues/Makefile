@@ -1,13 +1,24 @@
-PATH_SRC := src
-PATH_OUTPUT := ../output
-SRC = stack.c queue.c
-CC := gcc
-CFLAGS := -Wall -g
-INCLUDE := ../includes
-OBJ = $(addsuffix .o, $(basename $(SRC)))
+SRC_DIR := ./src
+#PROB_DIR := ./exercise
+
+#P = stack_queue_exercise
+
 
 .PHONY: all
-all: $(OBJ)
+#all: obj-src obj-prob
+all: obj-src
 
-%.o:	$(PATH_SRC)/%.c
-	$(CC) $(CFLAGS) -o $(PATH_OUTPUT)/$@ -c $< -I$(INCLUDE)
+
+obj-src:
+	$(MAKE) -C $(SRC_DIR)
+
+#obj-prob:
+#	$(MAKE) P=$(P) -C $(PROB_DIR)
+
+
+
+
+#.PHONY: clean
+#clean:
+#	rm -f $(PATH_OUTPUT)/$(P)
+#	$(MAKE) -C $(PROB_DIR) clean
