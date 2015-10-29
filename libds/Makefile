@@ -3,9 +3,10 @@ DIR_SLIST := slist
 DIR_DLIST := dlist
 DIR_STACK_QUEUE := stack-queues
 DIR_BITREE := bitree
+DIR_CHTBL := chtbl
 
 .PHONY: all
-all: objdir obj-slist obj-dlist obj-sq obj-bitree libds.a
+all: objdir obj-slist obj-dlist obj-sq obj-bitree obj-chtbl libds.a
 
 objdir:
 	mkdir -p $(OUTPUT)
@@ -22,7 +23,10 @@ obj-sq:
 obj-bitree:
 	$(MAKE) -C $(DIR_BITREE)
 
-libds.a: $(OUTPUT)/slist.o $(OUTPUT)/dlist.o $(OUTPUT)/stack.o $(OUTPUT)/queue.o $(OUTPUT)/bitree.o
+obj-chtbl:
+	$(MAKE) -C $(DIR_CHTBL)
+
+libds.a: $(OUTPUT)/slist.o $(OUTPUT)/dlist.o $(OUTPUT)/stack.o $(OUTPUT)/queue.o $(OUTPUT)/bitree.o $(OUTPUT)/chtbl.o
 	ar -rv $(OUTPUT)/libds.a  $?
 
 .PHONY: clean

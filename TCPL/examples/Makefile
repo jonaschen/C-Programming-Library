@@ -14,10 +14,15 @@ P_CALCULATOR = calculator
 SRC_CALCULATOR = calculator.c
 SRCS += $(SRC_CALCULATOR)
 
+# program wc
+P_WC = wc
+SRC_WC = wc.c
+SRCS += $(SRC_WC)
+
 OBJS = $(addsuffix .o, $(basename $(SRCS)))
 
 .PHONY: all
-all: $(OBJS) $(P_GREP) $(P_CALCULATOR)
+all: $(OBJS) $(P_GREP) $(P_CALCULATOR) $(P_WC)
 
 %.o: %.c
 	$(CC) $(CFLAGS) -I$(INCLUDE) -o $(OUT_DIR)/$@ -c $<
@@ -27,3 +32,6 @@ $(P_GREP): $(SRC_GREP)
 
 $(P_CALCULATOR): $(SRC_CALCULATOR)
 	$(CC) $(CFLAGS) -o $(OUT_DIR)/$@ $(OUT_DIR)/$@.o $(LDADD)
+
+$(P_WC): $(SRC_WC)
+	$(CC) $(CFLAGS) -o $(OUT_DIR)/$@ $(OUT_DIR)/$@.o $(OUT_DIR)/getwords.o $(LDADD)

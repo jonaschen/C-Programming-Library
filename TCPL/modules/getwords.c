@@ -20,6 +20,8 @@ int getwords(char *str, size_t len, char ***pwords)
 
 	buf = strdup((const char *) str);
 	words = (char **) malloc(MAX_WORDS * sizeof(char *));
+	if (!words)
+		return -1;
 
 	if (IS_WORD(buf[0])) {
 		state = IN_WORD;

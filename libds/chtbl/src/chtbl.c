@@ -17,7 +17,7 @@ int chtbl_init(struct chtbl_t *htbl, int buckets, int (*h)(const void *key),
 	htbl->buckets = buckets;
 
 	for (i = 0; i < htbl->buckets; i++)
-		list_init(&htbl->table[i], free_data);
+		slist_init(&htbl->table[i], free_data);
 
 	htbl->hash = h;
 	htbl->match = match;
@@ -35,7 +35,7 @@ void chtbl_destroy(struct chtbl_t *htbl)
 		return;
 
 	for (i = 0; i < htbl->buckets; i++) {
-		list_destroy(&htbl->table[i]);
+		slist_destroy(&htbl->table[i]);
 	}
 
 	free(htbl->table);

@@ -1,0 +1,10 @@
+Hello Genty!
+Are you working?
+Do you want to take a break?
+
+Programming is interesting.
+Practice makes perfect.
+Keep working and you will be there.
+
+The C Programming Language is the bible book for C Programming
+Reading it is not enough, you also need to write the examples in the book by yourself.
