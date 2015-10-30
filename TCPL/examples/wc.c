@@ -91,7 +91,7 @@ int wc_sorting_cmp(const void *key1, const void *key2)
 	return (data1->cnt - data2->cnt);
 }
 
-void do_wc_sorting(void)
+void do_wc_sorting(struct wc_t ***pwc_nodes)
 {
 	int i, cnt;
 	struct wc_t **wc_nodes;
@@ -107,6 +107,8 @@ void do_wc_sorting(void)
 
 	for (i = 0; i < cnt; i++)
 		printf("word:%s, cnt:%d\n", wc_nodes[i]->word, wc_nodes[i]->cnt);
+
+	*pwc_nodes = wc_nodes;
 }
 
 #define WORD_SLOTS	512
@@ -118,6 +120,7 @@ int main(int argc, char *argv[])
 	size_t len;
 	ssize_t bytes;
 	FILE *input = stdin;
+	struct wc_t **wc_nodes;
 
 	if (argc > 1) {
 		input = fopen(argv[1], "r");
@@ -127,7 +130,7 @@ int main(int argc, char *argv[])
 		}
 	}
 
-	chtbl_init(wc_table, WORD_SLOTS, word_hash, word_match, NULL);
+	chtbl_init(wc_table, WORD_SLOTS, word_hash, word_match, free);
 
 	while ((bytes = getline(&lineptr, &len, input)) > 0) {
 		if ((cnt = getwords(lineptr, bytes, &words)) > 0) {
@@ -135,7 +138,10 @@ int main(int argc, char *argv[])
 		}
 	}
 
-	do_wc_sorting();
+	do_wc_sorting(&wc_nodes);
+
+	chtbl_destroy(wc_table);
+	free(wc_nodes);
 
 	exit(EXIT_SUCCESS);
 }
