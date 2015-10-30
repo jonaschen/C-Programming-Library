@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <errno.h>
 
 #include "slist.h"
 #include "chtbl.h"
@@ -90,24 +91,10 @@ int wc_sorting_cmp(const void *key1, const void *key2)
 	return (data1->cnt - data2->cnt);
 }
 
-#define WORD_SLOTS	512
-#define BUF_SIZE	1024
-int main(int argc, char *argv[])
+void do_wc_sorting(void)
 {
-	int cnt, i;
-	char **words;
-	char *str, *lineptr = NULL;
-	size_t len;
-	ssize_t bytes;
+	int i, cnt;
 	struct wc_t **wc_nodes;
-
-	chtbl_init(wc_table, WORD_SLOTS, word_hash, word_match, NULL);
-
-	while ((bytes = getline(&lineptr, &len, stdin)) > 0) {
-		if ((cnt = getwords(lineptr, bytes, &words)) > 0) {
-			update_word_table(cnt, words);
-		}
-	}
 
 	cnt = wrod_table_list(&wc_nodes);
 
@@ -118,9 +105,37 @@ int main(int argc, char *argv[])
 	qsort((void *) wc_nodes, cnt, sizeof(struct wc_t *), wc_sorting_cmp);
 
 
-
 	for (i = 0; i < cnt; i++)
 		printf("word:%s, cnt:%d\n", wc_nodes[i]->word, wc_nodes[i]->cnt);
+}
 
-	exit(0);
+#define WORD_SLOTS	512
+int main(int argc, char *argv[])
+{
+	int cnt, i;
+	char **words;
+	char *str, *lineptr = NULL;
+	size_t len;
+	ssize_t bytes;
+	FILE *input = stdin;
+
+	if (argc > 1) {
+		input = fopen(argv[1], "r");
+		if (!input) {
+			perror("fopen");
+			exit(EXIT_FAILURE);
+		}
+	}
+
+	chtbl_init(wc_table, WORD_SLOTS, word_hash, word_match, NULL);
+
+	while ((bytes = getline(&lineptr, &len, input)) > 0) {
+		if ((cnt = getwords(lineptr, bytes, &words)) > 0) {
+			update_word_table(cnt, words);
+		}
+	}
+
+	do_wc_sorting();
+
+	exit(EXIT_SUCCESS);
 }
