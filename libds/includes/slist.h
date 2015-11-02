@@ -31,6 +31,7 @@ struct slist_node *slist_alloc_node(void *data);
 int slist_ins_next(struct slist *list, struct slist_node *node, const void *data);
 int slist_ins_after(struct slist *list, struct slist_node *old, struct slist_node *ins);
 int slist_rem_next(struct slist *list, struct slist_node *node, void **data);
+struct slist_node *slist_get_nth(struct slist *list, int nth);
 
 static int slist_size(const struct slist *list)
 {

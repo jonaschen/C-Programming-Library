@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <errno.h>
 
 #include "slist.h"
 #include "prob.h"
@@ -29,6 +30,36 @@ struct slist *build_123(int n)
 	return list;
 }
 
+static void do_nth_test(struct slist *list)
+{
+	int i, data, *pdata;
+
+	for (i = 4; i < slist_size(list); i += 3) {
+		if (prob_get_nth(list, i, &data)) {
+			perror("get_nth");
+			exit(EXIT_FAILURE);
+		}
+		printf("%dth nodes of list: %d\n", i, data);
+	}
+
+	for (i = 4; i < slist_size(list); i += 3) {
+		pdata = (int *) malloc(sizeof(int));
+		*pdata = i * i;
+		if (prob_ins_nth(list, i , pdata)) {
+			perror("ins_nth");
+			exit(EXIT_FAILURE);
+		}
+	}
+
+	for (i = 4; i < slist_size(list); i += 3) {
+		if (prob_get_nth(list, i, &data)) {
+			perror("get_nth");
+			exit(EXIT_FAILURE);
+		}
+		printf("%dth nodes of list: %d\n", i, data);
+	}
+}
+
 int main(int argc, char *argv[])
 {
 	struct slist *list;
@@ -43,8 +74,11 @@ int main(int argc, char *argv[])
 	for (node = list->head, i = 0; node; node = node->next, i++)
 		printf("node[%i], data:%d\n", i, *(int *) node->data);
 
-	for (i = 1; i < 10; i++)
+	for (i = 1; i < n; i++)
 		printf("%d instances of data %d\n", prob_count(list, i), i);
 
-	return 0;
+
+	do_nth_test(list);
+
+	exit(EXIT_SUCCESS);
 }

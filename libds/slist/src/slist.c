@@ -111,3 +111,16 @@ int slist_rem_next(struct slist *list, struct slist_node *node, void **data)
 	return 0;
 }
 
+struct slist_node *slist_get_nth(struct slist *list, int nth)
+{
+	int cnt = 0;
+	struct slist_node *node;
+
+	if (!list || slist_size(list) < nth)
+		return NULL;
+
+	for (node = list->head; node && cnt != nth; node = node->next, cnt++)
+		;
+
+	return node;
+}
