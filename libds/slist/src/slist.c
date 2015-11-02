@@ -124,3 +124,20 @@ struct slist_node *slist_get_nth(struct slist *list, int nth)
 
 	return node;
 }
+
+struct slist_node *slist_pop(struct slist *list)
+{
+	struct slist_node *node = NULL;
+
+	if (!list || slist_size(list) == 0)
+		return node;
+
+	node = list->head;
+	list->head = node->next;
+	if (slist_size(list) == 1)
+		list->tail = NULL;
+
+	list->size--;
+
+	return node;
+}

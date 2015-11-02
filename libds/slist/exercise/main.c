@@ -62,7 +62,7 @@ static void do_nth_test(struct slist *list)
 
 int main(int argc, char *argv[])
 {
-	struct slist *list;
+	struct slist *list, *temp;
 	struct slist_node *node;
 	int i, n = 3;
 
@@ -79,6 +79,12 @@ int main(int argc, char *argv[])
 
 
 	do_nth_test(list);
+	for (node = list->head, i = 0; node; node = node->next, i++)
+		printf("node[%i], data:%d\n", i, *(int *) node->data);
+
+	insert_sort(list);
+	for (node = list->head, i = 0; node; node = node->next, i++)
+		printf("node[%i], data:%d\n", i, *(int *) node->data);
 
 	exit(EXIT_SUCCESS);
 }
