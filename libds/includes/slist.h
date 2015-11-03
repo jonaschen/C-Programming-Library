@@ -69,4 +69,7 @@ static struct slist_node *slist_next(const struct slist_node *node)
 	return (node) ? (node->next) : NULL;
 }
 
+#define slist_append(list, data)	\
+	slist_ins_next(list, (list)->tail, (const void *)data)
+
 #endif
