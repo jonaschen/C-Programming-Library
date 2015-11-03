@@ -5,6 +5,14 @@
 #include "slist.h"
 #include "prob.h"
 
+#define slist_dump_int_data(list)	\
+	do {									\
+		struct slist_node *node;					\
+		int i;								\
+		for (node = (list)->head, i = 0; node; node = node->next, i++)	\
+			printf("node[%i], data:%d\n", i, *(int *) node->data);	\
+	} while (0);
+
 struct slist *build_123(int n)
 {
 	struct slist *list;
@@ -70,21 +78,23 @@ int main(int argc, char *argv[])
 		n = atoi(argv[1]);
 
 	list = build_123(n);
-
-	for (node = list->head, i = 0; node; node = node->next, i++)
-		printf("node[%i], data:%d\n", i, *(int *) node->data);
+	slist_dump_int_data(list);
 
 	for (i = 1; i < n; i++)
 		printf("%d instances of data %d\n", prob_count(list, i), i);
 
 
 	do_nth_test(list);
-	for (node = list->head, i = 0; node; node = node->next, i++)
-		printf("node[%i], data:%d\n", i, *(int *) node->data);
+	slist_dump_int_data(list);
 
 	insert_sort(list);
-	for (node = list->head, i = 0; node; node = node->next, i++)
-		printf("node[%i], data:%d\n", i, *(int *) node->data);
+	slist_dump_int_data(list);
+
+	temp = (struct slist *) malloc(sizeof(struct slist));
+	front_back_split(list, temp);
+	slist_dump_int_data(list);
+	slist_dump_int_data(temp);
+
 
 	exit(EXIT_SUCCESS);
 }

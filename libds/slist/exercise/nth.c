@@ -29,3 +29,26 @@ int prob_ins_nth(struct slist *list, int nth, const void *data)
 
 	return slist_ins_next(list, node, data);
 }
+
+void front_back_split(struct slist *list, struct slist *back)
+{
+	struct slist_node *split;
+	int half;
+
+	if (!list || !back)
+		return;
+
+	half = slist_size(list) / 2 - 1;
+	split = slist_get_nth(list, half);
+
+	slist_init(back, list->free_data);
+	back->tail = list->tail;
+	back->head = split->next;
+	back->size = list->size - half;
+
+	list->tail = split;
+	split->next = NULL;
+	list->size = half;
+
+	return;
+}
