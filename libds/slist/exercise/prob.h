@@ -9,4 +9,7 @@ void insert_sort(struct slist *list);
 void front_back_split(struct slist *list, struct slist *back);
 void remove_duplicates(struct slist *list);
 
+void alternating_split(struct slist *source, struct slist *a, struct slist *b);
+struct slist *shuffle_merge(struct slist *a, struct slist *b);
+
 #endif

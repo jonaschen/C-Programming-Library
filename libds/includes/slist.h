@@ -31,6 +31,7 @@ struct slist_node *slist_alloc_node(void *data);
 int slist_ins_next(struct slist *list, struct slist_node *node, const void *data);
 int slist_ins_after(struct slist *list, struct slist_node *old, struct slist_node *ins);
 int slist_rem_next(struct slist *list, struct slist_node *node, void **data);
+
 struct slist_node *slist_get_nth(struct slist *list, int nth);
 struct slist_node *slist_pop(struct slist *list);
 
@@ -69,7 +70,19 @@ static struct slist_node *slist_next(const struct slist_node *node)
 	return (node) ? (node->next) : NULL;
 }
 
-#define slist_append(list, data)	\
+#define slist_append_data(list, data)	\
 	slist_ins_next(list, (list)->tail, (const void *)data)
+
+#define slist_append_node(list, node)	\
+	slist_ins_after(list, (list)->tail, node)
+
+#define slist_append_list(front, back)		\
+	do {					\
+		front->tail->next = back->head;	\
+		front->tail = back->tail;	\
+		front->size += back->size;	\
+		back->tail = back->head = NULL;	\
+		back->size = 0;			\
+	} while (0);
 
 #endif

@@ -1,4 +1,4 @@
-obj-prob += sort.o nth.o count.o main.o
+obj-prob += merge.o sort.o nth.o count.o main.o
 obj-slist += slist.o
 
 P := list_problems

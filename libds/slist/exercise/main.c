@@ -77,9 +77,49 @@ static void do_nth_test(struct slist *list)
 	}
 }
 
+void do_sort_split_merge_test(struct slist *list)
+{
+	struct slist *temp, *a, *b;
+
+	a = (struct slist *) malloc(sizeof(struct slist));
+	b = (struct slist *) malloc(sizeof(struct slist));
+
+	slist_init(a, list->free_data);
+	slist_init(b, list->free_data);
+
+	do_nth_test(list);
+	slist_dump_int_data(list);
+
+	insert_sort(list);
+	slist_dump_int_data(list);
+
+	remove_duplicates(list);
+	slist_dump_int_data(list);
+
+	front_back_split(list, a);
+	printf("\nafter front_back_split:\n");
+	slist_dump_int_data(list);
+	slist_dump_int_data(a);
+
+	temp = shuffle_merge(list, a);
+	free(list);
+
+	list = temp;
+	printf("\nafter shuffle_merge:\n");
+	slist_dump_int_data(list);
+
+	printf("\nafter alternating_split:\n");
+	alternating_split(list, a, b);
+	slist_dump_int_data(a);
+	slist_dump_int_data(b);
+
+	free(a);
+	free(b);
+}
+
 int main(int argc, char *argv[])
 {
-	struct slist *list, *temp;
+	struct slist *list;
 	struct slist_node *node;
 	int i, n = 3;
 
@@ -92,21 +132,7 @@ int main(int argc, char *argv[])
 	for (i = 1; i < n; i++)
 		printf("%d instances of data %d\n", prob_count(list, i), i);
 
-
-	do_nth_test(list);
-	slist_dump_int_data(list);
-
-	insert_sort(list);
-	slist_dump_int_data(list);
-
-	remove_duplicates(list);
-	slist_dump_int_data(list);
-
-	temp = (struct slist *) malloc(sizeof(struct slist));
-	front_back_split(list, temp);
-	slist_dump_int_data(list);
-	slist_dump_int_data(temp);
-
+	do_sort_split_merge_test(list);
 
 	exit(EXIT_SUCCESS);
 }
