@@ -56,3 +56,26 @@ void insert_sort(struct slist *list)
 	
 	free(sorted);
 }
+
+void remove_duplicates(struct slist *list)
+{
+	struct slist_node *node, *prev;
+	void *data;
+
+	if (!list || slist_size(list) < 2)
+		return;
+
+	prev = list->head;
+	node = prev->next;
+	while (node) {
+		if (int_list_compare(prev, node) == 0) {
+			slist_rem_next(list, prev, &data);
+			if (list->free_data)
+				list->free_data(data);
+			node = prev->next;
+		} else {
+			prev = node;
+			node = node->next;
+		}
+	}
+}

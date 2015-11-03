@@ -66,6 +66,15 @@ static void do_nth_test(struct slist *list)
 		}
 		printf("%dth nodes of list: %d\n", i, data);
 	}
+
+	for (i = 4; i < slist_size(list); i += 3) {
+		pdata = (int *) malloc(sizeof(int));
+		*pdata = i * i;
+		if (prob_ins_nth(list, i , pdata)) {
+			perror("ins_nth");
+			exit(EXIT_FAILURE);
+		}
+	}
 }
 
 int main(int argc, char *argv[])
@@ -88,6 +97,9 @@ int main(int argc, char *argv[])
 	slist_dump_int_data(list);
 
 	insert_sort(list);
+	slist_dump_int_data(list);
+
+	remove_duplicates(list);
 	slist_dump_int_data(list);
 
 	temp = (struct slist *) malloc(sizeof(struct slist));

@@ -38,8 +38,8 @@ void front_back_split(struct slist *list, struct slist *back)
 	if (!list || !back)
 		return;
 
-	half = slist_size(list) / 2 - 1;
-	split = slist_get_nth(list, half);
+	half = (slist_size(list) + 1 )/ 2;
+	split = slist_get_nth(list, half - 1);
 
 	slist_init(back, list->free_data);
 	back->tail = list->tail;
