@@ -12,4 +12,6 @@ void remove_duplicates(struct slist *list);
 void alternating_split(struct slist *source, struct slist *a, struct slist *b);
 struct slist *shuffle_merge(struct slist *a, struct slist *b);
 
+void move_node(struct slist *dest, struct slist *src);
+
 #endif
