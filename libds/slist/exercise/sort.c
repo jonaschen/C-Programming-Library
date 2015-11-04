@@ -79,3 +79,30 @@ void remove_duplicates(struct slist *list)
 		}
 	}
 }
+
+int sorted_merge(struct slist *a, struct slist *b)
+{
+	struct slist_node *prev_a = NULL, *node_a, *node_b;
+	struct slist *sorted;
+
+	if (!a || !b || slist_size(b) <= 0)
+		return -1;
+
+	node_a = a->head;
+	while (slist_size(b) > 0) {
+		node_b = slist_pop(b);
+		while (node_a && int_list_compare(node_a, node_b) < 0) {
+			prev_a = node_a;
+			node_a = node_a->next;
+		}
+
+		if (!node_a) {
+			slist_append_list(a, b);
+			break;
+		} else {
+			slist_ins_after(a, prev_a, node_b);
+		}
+	}
+
+	return 0;
+}

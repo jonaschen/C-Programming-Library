@@ -161,6 +161,18 @@ void do_move_test(struct slist *list)
 	free(temp);
 }
 
+void do_sort_merge_test(void)
+{
+	struct slist *a, *b;
+
+	printf("[%s] start test\n", __func__);
+	printf("[%s] after sorted_merge:\n", __func__);
+	a = build_sequence(1, 6);
+	b = build_sequence(3, 9);
+	sorted_merge(a, b);
+	slist_dump_int_data(a);
+}
+
 int main(int argc, char *argv[])
 {
 	struct slist *list, *temp;
@@ -181,6 +193,8 @@ int main(int argc, char *argv[])
 
 	list = temp;
 	do_move_test(list);
+
+	do_sort_merge_test();
 
 	exit(EXIT_SUCCESS);
 }
