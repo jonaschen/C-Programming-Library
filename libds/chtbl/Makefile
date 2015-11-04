@@ -1,7 +1,7 @@
 SRC_DIR := ./src
-#PROB_DIR := ./exercise
+PROB_DIR := ./exercise
 
-#P = chtbl_exercise
+P = chtbl_exercise
 
 
 .PHONY: all
@@ -18,7 +18,7 @@ obj-src:
 
 
 
-#.PHONY: clean
-#clean:
-#	rm -f $(PATH_OUTPUT)/$(P)
-#	$(MAKE) -C $(PROB_DIR) clean
+.PHONY: clean
+clean:
+	rm -f $(PATH_OUTPUT)/$(P)
+	$(MAKE) -C $(PROB_DIR) clean

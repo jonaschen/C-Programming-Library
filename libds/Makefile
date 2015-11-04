@@ -32,3 +32,8 @@ libds.a: $(OUTPUT)/slist.o $(OUTPUT)/dlist.o $(OUTPUT)/stack.o $(OUTPUT)/queue.o
 .PHONY: clean
 clean:
 	rm -rf $(OUTPUT)/*
+	$(MAKE) -C $(DIR_SLIST)	clean
+	$(MAKE) -C $(DIR_DLIST) clean
+	$(MAKE) -C $(DIR_STACK_QUEUE) clean
+	$(MAKE) -C $(DIR_BITREE) clean
+	$(MAKE) -C $(DIR_CHTBL) clean
