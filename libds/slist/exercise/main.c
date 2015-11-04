@@ -163,13 +163,17 @@ void do_move_test(struct slist *list)
 
 void do_sort_merge_test(void)
 {
-	struct slist *a, *b;
+	struct slist *a, *b, *c;
 
 	printf("[%s] start test\n", __func__);
-	printf("[%s] after sorted_merge:\n", __func__);
-	a = build_sequence(1, 6);
-	b = build_sequence(3, 9);
-	sorted_merge(a, b);
+	a = build_sequence(6, 9);
+	b = build_sequence(23, 18);
+	c = build_sequence(12, 9);
+	a = shuffle_merge(a, c);
+	a = shuffle_merge(a, b);
+	slist_dump_int_data(a);
+	printf("[%s] after merge_sort:\n", __func__);
+	merge_sort(a);
 	slist_dump_int_data(a);
 }
 

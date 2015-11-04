@@ -78,6 +78,8 @@ static struct slist_node *slist_next(const struct slist_node *node)
 
 #define slist_append_list(front, back)		\
 	do {					\
+		if (slist_size(back) == 0)	\
+			break;			\
 		front->tail->next = back->head;	\
 		front->tail = back->tail;	\
 		front->size += back->size;	\

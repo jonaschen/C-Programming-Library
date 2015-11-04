@@ -97,12 +97,34 @@ int sorted_merge(struct slist *a, struct slist *b)
 		}
 
 		if (!node_a) {
+			slist_append_node(a, node_b);
 			slist_append_list(a, b);
 			break;
 		} else {
 			slist_ins_after(a, prev_a, node_b);
+			node_a = node_b;
 		}
 	}
 
 	return 0;
+}
+
+void merge_sort(struct slist *list)
+{
+	struct slist *temp;
+
+	if (slist_size(list) <= 1)
+		return;
+
+	temp = (struct slist *) malloc(sizeof(struct slist));
+	slist_init(temp, NULL);
+
+	front_back_split(list, temp);
+
+	merge_sort(list);
+	merge_sort(temp);
+
+	sorted_merge(list, temp);
+
+	free(temp);
 }
