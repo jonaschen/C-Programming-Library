@@ -20,14 +20,14 @@ void build123(struct bitree *tree)
 	for (i = 0; i < n; i++)
 		data[i] = i + 1;
 
-	if (bitree_ins_left(tree, NULL, (const void *) &data[3]) != 0)
+	if (bitree_ins_left(tree, NULL, (const void *) &data[1]) != 0)
 		exit(EXIT_FAILURE);
 
-	bitree_ins_left(tree, tree->root, (const void *) &data[1]);
-	bitree_ins_right(tree, tree->root, (const void *) &data[4]);
+	bitree_ins_left(tree, tree->root, (const void *) &data[0]);
+	bitree_ins_right(tree, tree->root, (const void *) &data[2]);
 
-	bitree_ins_left(tree, tree->root->left, (const void *) &data[0]);
-	bitree_ins_right(tree, tree->root->left, (const void *) &data[2]);
+//	bitree_ins_left(tree, tree->root->left, (const void *) &data[0]);
+//	bitree_ins_right(tree, tree->root->left, (const void *) &data[2]);
 }
 
 int visit(struct bitree_node *node)
@@ -85,7 +85,7 @@ int print_paths(struct bitree_node *root)
 			if (peek->right && last_visited != peek->right) {
 				node = peek->right;
 			} else {
-				if (!peek->right) {
+				if (!peek->right && (peek->left != last_visited || !peek->left)) {
 					printf("path %d:", ++cnt);
 					print_path_sum(paths);
 				}
@@ -131,6 +131,50 @@ void mirror(struct bitree_node *root)
 	return;
 }
 
+void double_tree_node(struct bitree *tree, struct bitree_node *node)
+{
+	int *data;
+	struct bitree_node *dup;
+
+	if (!node)
+		return;
+
+	data = (int *) malloc(sizeof(int));
+	*data = *(int *) node->data;
+	dup = bitree_alloc_node(data);
+
+	dup->left = node->left;
+	node->left = dup;
+	tree->size++;
+}
+
+void double_tree(struct bitree *tree)
+{
+	struct bitree_node *node = tree->root;
+	struct bitree_node *last_visited = NULL, *peek;
+	struct stack_t parent_stack, *parent = &parent_stack;
+
+	if (tree == NULL)
+		return;
+
+	stack_init(parent, NULL);
+
+	while (!stack_is_empty(parent) || node) {
+		if (node) {
+			stack_push(parent, (const void *) node);
+			node = node->left;
+		} else {
+			peek = (struct bitree_node *) stack_peek(parent);
+			if (peek->right && last_visited != peek->right) {
+				node = peek->right;
+			} else {
+				double_tree_node(tree, peek);
+				stack_pop(parent, (void **) &last_visited);
+			}
+		}
+	}
+}
+
 int main(int argc, char *argv[])
 {
 	struct bitree extree, *tree = &extree;
@@ -153,6 +197,7 @@ int main(int argc, char *argv[])
 	cnt = levelorder_traversal(tree->root, visit, &depth);
 	printf("levelorder: total %d nodes traversed, max depth:%d\n", cnt, depth);
 
+	printf("\ndoing mirror to the tree\n");
 	mirror(tree->root);
 
 
@@ -168,12 +213,12 @@ int main(int argc, char *argv[])
 	cnt = levelorder_traversal(tree->root, visit, &depth);
 	printf("levelorder: total %d nodes traversed, max depth:%d\n", cnt, depth);
 	
-
-
-
-
 	min = min_value(tree);
 	printf("min value: %d\n", min);
+
+	double_tree(tree);
+	cnt = levelorder_traversal(tree->root, visit, &depth);
+	printf("levelorder: total %d nodes traversed, max depth:%d\n", cnt, depth);
 
 	cnt = print_paths(tree->root);
 	printf("total %d paths\n", cnt);
