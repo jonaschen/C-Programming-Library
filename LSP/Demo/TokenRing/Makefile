@@ -1,14 +1,14 @@
-
-P_COPY = copy
-obj-copy = copy.o
-
-OUT_DIR = ../output
-INCLUDE = ../include 
+OUT_DIR = ../../output
+INCLUDE = ../../include 
 CFLAGS := -g
 CC := gcc
 
-PROGRAMS = $(P_COPY)
-OBJS = $(obj-copy)
+P_TRING = tk_ring
+obj-tr = ring.o
+
+
+PROGRAMS = $(P_TRING)
+OBJS = $(obj-tr)
 
 .PHONY: all
 all: $(PROGRAMS)
@@ -16,7 +16,7 @@ all: $(PROGRAMS)
 %.o: %.c
 	$(CC) $(CFLAGS) -I$(INCLUDE) -o $@ -c $<
 
-$(P_COPY): $(obj-copy)
+$(P_TRING): $(obj-tr)
 	$(CC) $(CFLAGS) -o $@ $? -I$(INCLUDE)
 	mv $@ $(OUT_DIR)
 
