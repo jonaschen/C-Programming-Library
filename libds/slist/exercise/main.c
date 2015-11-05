@@ -159,6 +159,10 @@ void do_move_test(struct slist *list)
 		fprintf(stderr, "move error\n");
 	}
 	free(temp);
+
+	printf("[%s] reverse the list:\n", __func__);
+	reverse_list(list);
+	slist_dump_int_data(list);
 }
 
 void do_sort_merge_test(void)

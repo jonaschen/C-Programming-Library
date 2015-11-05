@@ -87,4 +87,7 @@ static struct slist_node *slist_next(const struct slist_node *node)
 		back->size = 0;			\
 	} while (0);
 
+#define slist_push_node(list, node)	\
+	slist_ins_after(list, NULL, node)
+
 #endif
