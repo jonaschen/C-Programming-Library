@@ -18,7 +18,7 @@ all: $(PROGRAMS)
 
 $(P_COPY): $(obj-copy)
 	$(CC) $(CFLAGS) -o $@ $? -I$(INCLUDE)
-	mv $@ $(OUT_DIR)
+	cp $@ $(OUT_DIR)
 
 .PHONY: clean
 clean:
