@@ -5,6 +5,7 @@
 #include <string.h>
 
 #include "lsp-common.h"
+#include "file-io.h"
 
 const char HELP_STR[] = "--help";
 #define OPEN_FLAG 	(O_CREAT | O_WRONLY | O_TRUNC)
@@ -45,7 +46,7 @@ int main(int argc, char *argv[])
 		exit(EXIT_FAILURE);
 	}
 
-	while ((bytes = read(in_fd, buf, CHAR_BUF_SIZE)) > 0) {
+	while ((bytes = read_r(in_fd, buf, CHAR_BUF_SIZE)) > 0) {
 		if (write(out_fd, buf, bytes) != bytes) {
 			perror("write");
 			exit(EXIT_FAILURE);

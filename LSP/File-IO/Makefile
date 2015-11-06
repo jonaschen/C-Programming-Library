@@ -1,6 +1,6 @@
 
 P_COPY = copy
-obj-copy = copy.o
+obj-copy = copy.o read_r.o
 
 OUT_DIR = ../output
 INCLUDE = ../include 
