@@ -17,4 +17,8 @@ struct slist *shuffle_merge(struct slist *a, struct slist *b);
 void move_node(struct slist *dest, struct slist *src);
 void reverse_list(struct slist *list);
 
+#ifdef DEBUG
+#define	debug(fmt, args...)	fprintf(stderr, fmt, ## args)
+#endif
+
 #endif

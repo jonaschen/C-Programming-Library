@@ -4,24 +4,41 @@
 
 enum state_t {
 	IN_WORD = 0,
+	QUOTED_STRING,
+	COMMENT,
 	OUT_WORD,
 };
 
-#define MAX_WORDS	256
-#define IS_WORD(c)	(isalnum(c))
+typedef enum state_t	word_parsing_t;
+
+#define MAX_WORDS_PER_LINE	256
+#define IS_WORD(c)	((isalnum(c)) || (c) == '_')
+int is_word(char c, word_parsing_t *state)
+{
+}
+
 int getwords(char *str, size_t len, char ***pwords)
 {
 	int cnt = 0, ret = 0;
 	char c;
 	char *start ;
 	char *buf, *word;
-	enum state_t state;
+	word_parsing_t state;
 	char **words;
 
-	buf = strdup((const char *) str);
-	words = (char **) malloc(MAX_WORDS * sizeof(char *));
-	if (!words)
+	if (!str || !len || !pwords)
 		return -1;
+
+	buf = strdup((const char *) str);
+	if (buf == NULL) {
+		perror("strdup");
+		return -1;
+	}
+	words = (char **) malloc(MAX_WORDS_PER_LINE * sizeof(char *));
+	if (!words) {
+		perror("malloc");
+		return -1;
+	}
 
 	if (IS_WORD(buf[0])) {
 		state = IN_WORD;

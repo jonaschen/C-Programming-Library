@@ -13,14 +13,13 @@
 			printf("node[%i], data:%d\n", i, *(int *) node->data);	\
 	} while (0);
 
-/* TODO: add debug macro */
 
-struct slist *build_sequence(int start, int number)
+struct slist *build_arithematic_seq(int start, int length, int step)
 {
 	struct slist *list;
 	int *data;
 	int i;
-	int max = start + number - 1;
+	int max = start + length * step - 1;
 
 	list = (struct slist *) malloc(sizeof(struct slist));
 	if (!list)
@@ -28,7 +27,7 @@ struct slist *build_sequence(int start, int number)
 
 	slist_init(list, free);
 
-	for (i = max; i >= start; i--) {
+	for (i = max; i >= start; i -= step) {
 		data = (int *) malloc(sizeof(int));
 		if (!data) {
 			perror("data");
@@ -41,11 +40,21 @@ struct slist *build_sequence(int start, int number)
 	return list;
 }
 
+static inline struct slist *build_sequence(int start, int number)
+{
+	return build_arithematic_seq(start, number, 1);
+}
+
+/*
+ * do_nth_test
+ *	1. get_nth
+ *	2. ins_nth
+ */
 static void do_nth_test(struct slist *list)
 {
 	int i, data, *pdata;
 
-	for (i = 4; i < slist_size(list); i += 3) {
+	for (i = 0; i < slist_size(list); i++) {
 		if (prob_get_nth(list, i, &data)) {
 			perror("get_nth");
 			exit(EXIT_FAILURE);
@@ -54,31 +63,16 @@ static void do_nth_test(struct slist *list)
 	}
 
 	printf("insert nodes into the list\n");
-	for (i = 4; i < slist_size(list); i += 3) {
+	for (i = 3; i < slist_size(list); i += 3) {
 		pdata = (int *) malloc(sizeof(int));
-		*pdata = i * i;
+		*pdata = i * i * 10;
 		if (prob_ins_nth(list, i , pdata)) {
 			perror("ins_nth");
 			exit(EXIT_FAILURE);
 		}
 	}
 
-	for (i = 4; i < slist_size(list); i += 3) {
-		if (prob_get_nth(list, i, &data)) {
-			perror("get_nth");
-			exit(EXIT_FAILURE);
-		}
-		printf("new %dth nodes of list: %d\n", i, data);
-	}
-
-	for (i = 4; i < slist_size(list); i += 3) {
-		pdata = (int *) malloc(sizeof(int));
-		*pdata = i * i;
-		if (prob_ins_nth(list, i , pdata)) {
-			perror("ins_nth");
-			exit(EXIT_FAILURE);
-		}
-	}
+	slist_dump_int_data(list);
 }
 
 struct slist *do_sort_split_merge_test(struct slist *list)
@@ -181,6 +175,26 @@ void do_sort_merge_test(void)
 	slist_dump_int_data(a);
 }
 
+void do_count_test(struct slist *list)
+{
+	int i, j, *data;
+	int n = slist_size(list);
+
+	/* append several repeat values into the list */
+	for (i = 0; i < n; i++) {
+		for (j = 0; j < i; j++) {
+			data = (int *) malloc(sizeof(int));
+			*data = i;
+			slist_append_data(list, data);
+		}
+	}
+	printf("[%s] The processed list:\n", __func__);
+	slist_dump_int_data(list);
+
+	for (i = 0; i <= n; i++)
+		printf("[%s] %d instances of data %d\n", __func__, prob_count(list, i), i);
+}
+
 int main(int argc, char *argv[])
 {
 	struct slist *list, *temp;
@@ -191,10 +205,10 @@ int main(int argc, char *argv[])
 		n = atoi(argv[1]);
 
 	list = build_sequence(1, n);
+	printf("The initial list:\n");
 	slist_dump_int_data(list);
 
-	for (i = 1; i <= n; i++)
-		printf("%d instances of data %d\n", prob_count(list, i), i);
+	do_count_test(list);
 
 	temp = do_sort_split_merge_test(list);
 	free(list);
