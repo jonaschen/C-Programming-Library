@@ -19,6 +19,8 @@ P_WC = wc
 SRC_WC = wc.c
 SRCS += $(SRC_WC)
 
+# program lower & upper
+
 OBJS = $(addsuffix .o, $(basename $(SRCS)))
 
 .PHONY: all
