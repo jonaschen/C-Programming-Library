@@ -2,7 +2,6 @@ OUT_DIR := output
 MODULES := modules
 EXAMPLES := examples
 
-
 .PHONY: all
 all: $(OUT_DIR) module-objs example-programs
 

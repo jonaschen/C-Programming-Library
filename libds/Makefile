@@ -4,9 +4,8 @@ DIR_DLIST = dlist
 DIR_STACK_QUEUE = stack-queues
 DIR_BITREE = bitree
 DIR_CHTBL = chtbl
-DIR_BST = bst
 
-OBJS = obj-slist obj-dlist obj-sq obj-bst obj-bitree obj-chtbl
+OBJS = obj-slist obj-dlist obj-sq obj-bitree obj-chtbl
 
 .PHONY: all
 all: objdir $(OBJS) libds.a
@@ -29,8 +28,6 @@ obj-bitree:
 obj-chtbl:
 	$(MAKE) -C $(DIR_CHTBL)
 
-obj-bst:
-	$(MAKE) -C $(DIR_BST)
 
 libds.a: $(OUTPUT)/slist.o $(OUTPUT)/dlist.o $(OUTPUT)/stack.o $(OUTPUT)/queue.o $(OUTPUT)/bitree.o $(OUTPUT)/chtbl.o
 	ar -rv $(OUTPUT)/libds.a  $?
@@ -43,4 +40,3 @@ clean:
 	$(MAKE) -C $(DIR_STACK_QUEUE) clean
 	$(MAKE) -C $(DIR_BITREE) clean
 	$(MAKE) -C $(DIR_CHTBL) clean
-	$(MAKE) -C $(DIR_BST) clean

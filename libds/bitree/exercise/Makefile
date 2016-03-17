@@ -21,4 +21,4 @@ $(P): $(obj-prob)
 
 .PHONY: clean
 clean:
-	rm *.o
+	rm -f *.o

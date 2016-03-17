@@ -1,5 +1,5 @@
 OUT_DIR := ../output
-LIBDS_DIR := ../../libds
+LIBDS_DIR := ../../../libds
 INCLUDE = $(LIBDS_DIR)/includes
 LDADD = -L$(LIBDS_DIR)/output -lds -lm
 CFLAGS := -g

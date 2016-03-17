@@ -1,16 +1,16 @@
 DIR_LIBDS := libds
-DIR_TCPL := TCPL
+DIR_BOOKEX := bookexs
 
 .PHONY: all
-all: obj-libds obj-TCPL
+all: obj-libds obj-bookex
 
 obj-libds:
 	$(MAKE) -C $(DIR_LIBDS)
 
-obj-TCPL:
-	$(MAKE) -C $(DIR_TCPL)
+obj-bookex:
+	$(MAKE) -C $(DIR_BOOKEX)
 
 .PHONY: clean
 clean:
 	$(MAKE) -C $(DIR_LIBDS) clean
-	$(MAKE) -C $(DIR_TCPL) clean
+	$(MAKE) -C $(DIR_BOOKEX) clean
