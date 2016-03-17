@@ -1,5 +1,6 @@
-obj-prob += 
-obj-chtbl +=
+obj-prob += optbl_sic.o
+obj-chtbl += chtbl.o
+obj-slist += slist.o
 
 P := chtbl_problems
 
@@ -15,7 +16,7 @@ all: $(obj-prob) $(P)
 	$(CC) $(CFLAGS) -I$(INCLUDE) -o $@ -c $<
 
 $(P): $(obj-prob)
-	$(CC) $(CFLAGS) -o $@ $? $(OUT_DIR)/$(obj-chtbl)
+	$(CC) $(CFLAGS) -o $@ $? $(OUT_DIR)/$(obj-chtbl) $(OUT_DIR)/$(obj-slist)
 	mv $@ $(OUT_DIR)
 
 

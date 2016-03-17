@@ -5,15 +5,14 @@ P = chtbl_exercise
 
 
 .PHONY: all
-#all: obj-src obj-prob
-all: obj-src
+all: obj-src obj-prob
 
 
 obj-src:
 	$(MAKE) -C $(SRC_DIR)
 
-#obj-prob:
-#	$(MAKE) P=$(P) -C $(PROB_DIR)
+obj-prob:
+	$(MAKE) P=$(P) -C $(PROB_DIR)
 
 
 
