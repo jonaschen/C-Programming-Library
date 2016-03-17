@@ -1,0 +1,35 @@
+A Note of SIC Assembly Languabe
+----------------------------------------------------------------------
+
+Label:
+	A label is required to start in the first character of a line.
+	If the line does not have a label, a space or tab delimeter is
+	needed to start the line. 
+
+Comment:
+	Everything on the line after the ; symbol is treated as a 
+	comment and ignored(unless it is inside a string).
+
+Directives:
+	START	Defines the programm's name and start address.
+	END	Marks the end of a program and also points to the 
+		first instruction of this program.
+	BYTE	Define a constant of a number of bytes.
+	WORD	Define a word constant.
+	RESB	Reserve a memory space for a number of bytes.
+	RESW	Reserve a memory space for a number of words.
+
+Registers:
+	A (0) 	Used for basic arithmetic operations; 
+		known as the accumulator register.
+	X (1) 	Stores and calculates addresses; 
+		known as the index register.
+	L (2) 	Used for jumping to specific memory addresses and 
+		storing return addresses; 
+		known as the linkage register.
+	PC (8) 	Contains the address of the next instruction to 
+		execute; known as the program counter register.
+	SW (9) 	Contains a variety of information, such as carry or 
+		overflow flags; 
+		known as the status word register.
+

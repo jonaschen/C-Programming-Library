@@ -1,0 +1,168 @@
+1:  
+2:  
+3:  COPY	START	1000
+		label:COPY
+		opcode:START
+		operand:1000
+4:  
+5:  FIRST	STL	RETADR		
+		label:FIRST
+		opcode:STL
+		operand:RETADR		
+6:  CLOOP	JSUB	RDREC		
+		label:CLOOP
+		opcode:JSUB
+		operand:RDREC		
+7:  	LDA	LENGTH
+		opcode:LDA
+		operand:LENGTH
+8:  	COMP	ZERO
+		opcode:COMP
+		operand:ZERO
+9:  	JEQ	ENDFIL		
+		opcode:JEQ
+		operand:ENDFIL		
+10:  	JSUB	WRREC
+		opcode:JSUB
+		operand:WRREC
+11:  	J	CLOOP
+		opcode:J
+		operand:CLOOP
+12:  
+13:  
+14:  
+15:  
+16:  ENDFIL	LDA	EOF
+		label:ENDFIL
+		opcode:LDA
+		operand:EOF
+17:  	STA	BUFFER
+		opcode:STA
+		operand:BUFFER
+18:  	LDA	THREE
+		opcode:LDA
+		operand:THREE
+19:  	STA	LENGTH
+		opcode:STA
+		operand:LENGTH
+20:  	JSUB	WRREC
+		opcode:JSUB
+		operand:WRREC
+21:  	LDL	RETADR
+		opcode:LDL
+		operand:RETADR
+22:  	RSUB
+		opcode:RSUB
+23:  
+24:  
+25:  
+26:  EOF	BYTE	C'EOF'
+		label:EOF
+		opcode:BYTE
+		operand:C'EOF'
+27:  THREE	WORD	3
+		label:THREE
+		opcode:WORD
+		operand:3
+28:  ZERO	WORD	0
+		label:ZERO
+		opcode:WORD
+		operand:0
+29:  RETADR	RESW	1
+		label:RETADR
+		opcode:RESW
+		operand:1
+30:  LENGTH	RESW	1
+		label:LENGTH
+		opcode:RESW
+		operand:1
+31:  BUFFER	RESB	4096
+		label:BUFFER
+		opcode:RESB
+		operand:4096
+32:  
+33:  
+34:  
+35:  
+36:  RDREC	LDX	ZERO		
+		label:RDREC
+		opcode:LDX
+		operand:ZERO		
+37:  	LDA	ZERO		
+		opcode:LDA
+		operand:ZERO		
+38:  RLOOP	TD	INPUT		
+		label:RLOOP
+		opcode:TD
+		operand:INPUT		
+39:  	JEQ	RLOOP		
+		opcode:JEQ
+		operand:RLOOP		
+40:  	RD	INPUT		
+		opcode:RD
+		operand:INPUT		
+41:  	COMP	ZERO		
+		opcode:COMP
+		operand:ZERO		
+42:  	JEQ	EXIT		
+		opcode:JEQ
+		operand:EXIT		
+43:  	STCH	BUFFER, X	
+		opcode:STCH
+		operand:BUFFER, X	
+44:  	TIX	MAXLEN		
+		opcode:TIX
+		operand:MAXLEN		
+45:  	JLT	RLOOP		
+		opcode:JLT
+		operand:RLOOP		
+46:  EXIT	STX	LENGTH
+		label:EXIT
+		opcode:STX
+		operand:LENGTH
+47:  	RSUB			
+		opcode:RSUB
+48:  INPUT	BYTE	X'F1'
+		label:INPUT
+		opcode:BYTE
+		operand:X'F1'
+49:  MAXLEN	WORD	4096	
+		label:MAXLEN
+		opcode:WORD
+		operand:4096	
+50:  
+51:  
+52:  
+53:  
+54:  WRREC	LDX	ZERO
+		label:WRREC
+		opcode:LDX
+		operand:ZERO
+55:  WLOOP	TD	OUTPUT
+		label:WLOOP
+		opcode:TD
+		operand:OUTPUT
+56:  	JEQ	WLOOP
+		opcode:JEQ
+		operand:WLOOP
+57:  	LDCH	BUFFER, X
+		opcode:LDCH
+		operand:BUFFER, X
+58:  	WD	OUTPUT
+		opcode:WD
+		operand:OUTPUT
+59:  	TIX	LENGTH
+		opcode:TIX
+		operand:LENGTH
+60:  	JLT	WLOOP
+		opcode:JLT
+		operand:WLOOP
+61:  	RSUB
+		opcode:RSUB
+62:  OUTPUT	BYTE	X'05'
+		label:OUTPUT
+		opcode:BYTE
+		operand:X'05'
+63:  	END	FIRST
+		opcode:END
+		operand:FIRST
