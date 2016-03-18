@@ -3,14 +3,19 @@
 #include <ctype.h>
 #include <string.h>
 
+#include "optbl.h"
+
 #define	BUF_LEN	4096
 
 static const char FILE_NAME[] = "sic_sample_1.S";
+
+static struct chtbl_t op_table;
 
 static int parse_columns(int number, char *line)
 {
 	char *label, *opcode, *operand;
 	char *ptr = line;
+	struct op_entry *t, temp;
 
 	printf("%d:  %s\n", number, line);
 
@@ -52,8 +57,16 @@ static int parse_columns(int number, char *line)
 
 	if (label)
 		printf("\t\tlabel:%s\n", label);
-	if (opcode)
-		printf("\t\topcode:%s\n", opcode);
+	if (opcode) {
+		temp.memonic = opcode;
+		t = &temp;
+		if (chtbl_lookup(&op_table, (void **) &t)) {
+			printf("\t\tundefined opcode:%s\n", opcode);
+		} else {
+			printf("\t\topcode:%s:%02X\n", opcode, t->opcode);
+		}
+
+	}
 	if (operand)
 		printf("\t\toperand:%s\n", operand);
 
@@ -69,6 +82,11 @@ int main(int argc, char *argv[])
 	char c;
 	int len = 0;
 	int line_number = 0;
+
+	if (optbl_init(&op_table)) {
+		printf("init optbl fail\n");
+		exit(1);
+	}
 
 	source = fopen(FILE_NAME, "r");
 	memset(buffer, '\0', sizeof(char) * BUF_LEN);
