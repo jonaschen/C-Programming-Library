@@ -7,7 +7,7 @@ OUTPUT := ../output
 CFLAGS += -I$(INCLUDES)
 LDFLAGS += -lds -L$(LINK)
 
-SRCS := scan.c optbl.c
+SRCS := scan.c optbl.c directive.c
 
 all:
 	gcc -o $(P) $(SRCS) $(CFLAGS) $(LDFLAGS)

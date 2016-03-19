@@ -10,6 +10,7 @@
 static const char FILE_NAME[] = "sic_sample_1.S";
 
 static struct chtbl_t op_table;
+static struct chtbl_t directive_table;
 
 static int parse_columns(int number, char *line)
 {
@@ -85,6 +86,11 @@ int main(int argc, char *argv[])
 
 	if (optbl_init(&op_table)) {
 		printf("init optbl fail\n");
+		exit(1);
+	}
+	
+	if (directives_init(directive_table)) {
+		printf("init directive table fail\n");
 		exit(1);
 	}
 
