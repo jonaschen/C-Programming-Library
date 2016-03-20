@@ -4,6 +4,7 @@
 #include <string.h>
 
 #include "optbl.h"
+#include "directive.h"
 
 #define	BUF_LEN	4096
 
@@ -12,17 +13,22 @@ static const char FILE_NAME[] = "sic_sample_1.S";
 static struct chtbl_t op_table;
 static struct chtbl_t directive_table;
 
-static int parse_columns(int number, char *line)
+static uint32_t location_counter = 0U;
+
+struct instruction_t {
+	char *label;
+	char *opcode;
+	char *operand;
+};
+
+static int parse_columns(int number, char *line, struct instruction_t *instr)
 {
 	char *label, *opcode, *operand;
 	char *ptr = line;
-	struct op_entry *t, temp;
 
 	printf("%d:  %s\n", number, line);
 
-	if (!strlen(line))
-		return -1;
-
+	/* Parse label column */
 	if (isspace(*ptr)) {
 		label = NULL;
 	} else {
@@ -32,93 +38,149 @@ static int parse_columns(int number, char *line)
 		*ptr++ = '\0';
 	}
 
-	if (isspace(*ptr)) {
-		while (isspace(*ptr++));
-		ptr--;
-	}
+	/* Parse opcode column */
+	while (isspace(*ptr++))
+		ptr++;
 
 	opcode = ptr;
-	while (!isspace(*ptr++));
-	ptr--;
-
-	*ptr++ = '\0';
-	if (strlen(opcode) == 0)
+	if (strlen(opcode) == 0) {
 		opcode = NULL;
+	} else {
+		while (isalnum(*ptr++));
+		*ptr++ = '\0';
+	}
 
-	if (isspace(*ptr)) {
-		while (isspace(*ptr++));
-		ptr--;
-	} 
-	if (isalnum(*ptr)) {
-		operand = ptr;
-		while (isalnum(*ptr))
-			ptr++;
-	} else
+	/* Parse operand column */
+	while (isspace(*ptr))
+		ptr++;
+
+	operand = ptr;
+	if (strlen(operand) == 0) {
 		operand = NULL;
+	} else {
+		while (!isspace(*ptr) && *ptr != '\0')
+			ptr++;
+		*ptr = '\0';
+	}
+
+	instr->label = label;
+	instr->opcode = opcode;
+	instr->operand = operand;
+
+	return 0;
+}
+
+static int update_location_cntr(struct instruction_t *instr)
+{
+	char *label, *opcode, *operand;
+	struct op_entry *op, e_op;
+	struct sic_directive *dir, e_dir;
+
+	label = instr->label;
+	opcode = instr->opcode;
+	operand = instr->operand;
 
 	if (label)
 		printf("\t\tlabel:%s\n", label);
-	if (opcode) {
-		temp.memonic = opcode;
-		t = &temp;
-		if (chtbl_lookup(&op_table, (void **) &t)) {
-			printf("\t\tundefined opcode:%s\n", opcode);
-		} else {
-			printf("\t\topcode:%s:%02X\n", opcode, t->opcode);
-		}
 
+	if (opcode) {
+		e_op.memonic = opcode;
+		op = &e_op;
+		if (chtbl_lookup(&op_table, (void **) &op) == 0) {
+			printf("\t\topcode:(%s, %02X)\n", opcode, op->opcode);
+		} else {
+			op = NULL;
+			e_dir.directive = opcode;
+			dir = &e_dir;
+			if (chtbl_lookup(&directive_table, (void **) &dir) == 0) {
+				printf("\t\tdirective:%s\n", opcode);
+			} else {
+				dir = NULL;
+				printf("\t\tundefined opcode:%s\n", opcode);
+			}
+		}
 	}
+
 	if (operand)
 		printf("\t\toperand:%s\n", operand);
 
-	memset(line, '\0', sizeof(char) * BUF_LEN);
+	if (op) {
+		optbl_lc(op->memonic, operand, &location_counter);
+	} else if (dir) {
+		if (directive_lc(dir->directive, operand, &location_counter))
+			return 1;
+	}
+
+	printf("\t\tlocation:%u\n", location_counter);
 
 	return 0;
+}
+
+/*
+ * Get one line of instruction. Comments are stripped out.
+ */
+static int get_line_instruction(FILE *source, char *buffer)
+{
+	char c;
+	int len = 0;
+	size_t bytes;
+
+	do {
+		if (1 != fread(&c, sizeof(char), 1, source)) {
+			break;
+		}
+
+		if (c == ';') {
+			do {
+				bytes = fread(&c, sizeof(char), 1, source);
+			} while (c != '\n' && bytes == 1);
+			c = '\n';
+		}
+
+		if (c == '\n') {
+			c = '\0';
+		}
+
+		buffer[len++] = c;
+	} while (c != '\0');
+
+	return len;
 }
 
 int main(int argc, char *argv[])
 {
 	FILE *source;
 	char buffer[BUF_LEN];
-	char c;
-	int len = 0;
 	int line_number = 0;
+	int ret;
+	struct instruction_t instr;
 
 	if (optbl_init(&op_table)) {
 		printf("init optbl fail\n");
 		exit(1);
 	}
 	
-	if (directives_init(directive_table)) {
+	if (directives_init(&directive_table)) {
 		printf("init directive table fail\n");
 		exit(1);
 	}
 
 	source = fopen(FILE_NAME, "r");
-	memset(buffer, '\0', sizeof(char) * BUF_LEN);
 
-	do {
-		if (1 != fread(&c, sizeof(char), 1, source))
+	while (1) {
+		memset(buffer, '\0', sizeof(char) * BUF_LEN);
+		ret = get_line_instruction(source, buffer);
+		if (ret > 1) {
+			ret = parse_columns(line_number, buffer, &instr);
+			if (ret >= 0)
+				update_location_cntr(&instr);
+			if (ret == 1)
+				break;
+		} else if (ret == 0) {
 			break;
-
-		if (c == ';') {
-			while (c != '\n') {
-				if (1 != fread(&c, sizeof(char), 1, source))
-					exit(1);
-			}
 		}
-
-		if (c == '\n') {
-			line_number++;
-			c = '\0';
-		}
-
-		buffer[len++] = c;
-		if (c == '\0' || (len == BUF_LEN - 1)) {
-			parse_columns(line_number, buffer);
-			len = 0;
-		}
-	} while (c != EOF);
+		line_number++;
+	}
 
 	fclose(source);
 

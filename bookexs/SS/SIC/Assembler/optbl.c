@@ -3,6 +3,16 @@
 
 #include "optbl.h"
 
+int optbl_lc(const char *opcode, const char *operand, uint32_t *location_cntr)
+{
+	if (!strncmp(opcode, "ADD", 3))
+		*location_cntr += 1;
+	else
+		*location_cntr += 3;
+
+	return 0;
+}
+
 static const struct op_entry op_codes[] = {
 	{"ADD",  0x18},
 	{"AND",  0x40},
@@ -22,10 +32,12 @@ static const struct op_entry op_codes[] = {
 	{"RD",   0xD8},
 	{"RSUB", 0x4C},
 	{"STA",  0x0C},
+	{"STCH", 0x54},
 	{"STL",  0x14},
 	{"STSW", 0xE8},
 	{"STX",  0x10},
 	{"SUB",  0x1C},
+	{"TD",   0xE0},
 	{"TIX",  0x2C},
 	{"WD",   0xDC},
 	{NULL,   0xFF},

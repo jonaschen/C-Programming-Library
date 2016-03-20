@@ -1,16 +1,29 @@
+#include <stdlib.h>
+#include <string.h>
 
 #include "directive.h"
 
 
+int directive_lc(const char *opcode, const char *operand, uint32_t *location_cntr)
+{
+	if (!strncmp(opcode, "START", 5))
+		*location_cntr = (uint32_t) atoi(operand);
+
+	if (!strncmp(opcode, "END", 3))
+		return -1;
+
+	return 0;
+}
+
 
 static const struct sic_directive directives[] = {
-	{"START"},
-	{"END"},
-	{"BYTE"},
-	{"WORD"},
-	{"RESB"},
-	{"RESW"},
-	{NULL},
+	{"START" },
+	{"END"  },
+	{"BYTE" },
+	{"WORD" },
+	{"RESB" },
+	{"RESW" },
+	{NULL   },
 };
 
 static int directive_match(const void *key1, const void *key2)

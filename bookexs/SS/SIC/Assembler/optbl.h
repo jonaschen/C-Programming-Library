@@ -11,5 +11,6 @@ struct op_entry {
 
 
 int optbl_init(struct chtbl_t *table);
+int optbl_lc(const char *opcode, const char *operand, uint32_t *location_cntr);
 
 #endif
