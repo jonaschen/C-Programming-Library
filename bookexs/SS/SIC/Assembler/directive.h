@@ -6,8 +6,8 @@
 
 struct sic_directive {
 	const char *directive;
+	int (*location_update)(const char *opcode, const char *operand, uint32_t *location_cntr);
 };
 
-int directive_lc(const char *opcode, const char *operand, uint32_t *location_cntr);
 
 #endif

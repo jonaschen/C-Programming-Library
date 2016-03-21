@@ -26,8 +26,6 @@ static int parse_columns(int number, char *line, struct instruction_t *instr)
 	char *label, *opcode, *operand;
 	char *ptr = line;
 
-	printf("%d:  %s\n", number, line);
-
 	/* Parse label column */
 	if (isspace(*ptr)) {
 		label = NULL;
@@ -39,14 +37,15 @@ static int parse_columns(int number, char *line, struct instruction_t *instr)
 	}
 
 	/* Parse opcode column */
-	while (isspace(*ptr++))
+	while (isspace(*ptr))
 		ptr++;
 
 	opcode = ptr;
 	if (strlen(opcode) == 0) {
 		opcode = NULL;
 	} else {
-		while (isalnum(*ptr++));
+		while (isalnum(*ptr))
+			ptr++;
 		*ptr++ = '\0';
 	}
 
@@ -80,38 +79,49 @@ static int update_location_cntr(struct instruction_t *instr)
 	opcode = instr->opcode;
 	operand = instr->operand;
 
-	if (label)
-		printf("\t\tlabel:%s\n", label);
+	printf("%04X", location_counter);
+
+	if (label) {
+		/* TODO */
+		/* update symbol table */
+		printf("\t%s\t", label);
+	} else {
+		printf("\t\t");
+	}
 
 	if (opcode) {
 		e_op.memonic = opcode;
 		op = &e_op;
 		if (chtbl_lookup(&op_table, (void **) &op) == 0) {
-			printf("\t\topcode:(%s, %02X)\n", opcode, op->opcode);
+			printf("opcode:%s\t\t%02X", opcode, op->opcode);
 		} else {
 			op = NULL;
 			e_dir.directive = opcode;
 			dir = &e_dir;
 			if (chtbl_lookup(&directive_table, (void **) &dir) == 0) {
-				printf("\t\tdirective:%s\n", opcode);
+				printf("directive:%s", opcode);
 			} else {
 				dir = NULL;
-				printf("\t\tundefined opcode:%s\n", opcode);
+				printf("undefined opcode:%s", opcode);
 			}
 		}
 	}
 
-	if (operand)
-		printf("\t\toperand:%s\n", operand);
+	if (operand) {
+		//printf("\t\toperand:%s\n", operand);
+	}
 
 	if (op) {
 		optbl_lc(op->memonic, operand, &location_counter);
 	} else if (dir) {
-		if (directive_lc(dir->directive, operand, &location_counter))
+		if (dir->location_update(dir->directive, operand, &location_counter)) {
+			printf("\n");
 			return 1;
+		}
 	}
 
-	printf("\t\tlocation:%u\n", location_counter);
+	printf("\n");
+	//printf("\t\tlocation:%04x\n", location_counter);
 
 	return 0;
 }

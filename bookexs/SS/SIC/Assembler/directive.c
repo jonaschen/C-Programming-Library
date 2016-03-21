@@ -4,26 +4,74 @@
 #include "directive.h"
 
 
-int directive_lc(const char *opcode, const char *operand, uint32_t *location_cntr)
+/*
+ * directive location counter update functions
+ */
+static int dirlc_start(const char *opcode, const char *operand, uint32_t *location_cntr)
 {
-	if (!strncmp(opcode, "START", 5))
-		*location_cntr = (uint32_t) atoi(operand);
+	const char *ptr = operand;
+	uint32_t cntr = 0U;
 
-	if (!strncmp(opcode, "END", 3))
-		return -1;
+	while (isxdigit(*ptr)) {
+		cntr *= 16;
+		if (isdigit(*ptr)) {
+			cntr += (*ptr - '0');
+		} else {
+			cntr += (toupper(*ptr) - 'A' + 10);
+		}
+
+		ptr++;
+	}
+
+	*location_cntr = cntr;
 
 	return 0;
 }
 
+static int dirlc_end(const char *opcode, const char *operand, uint32_t *location_cntr)
+{
+	return -1;
+}
+
+static int dirlc_byte(const char *opcode, const char *operand, uint32_t *location_cntr)
+{
+	if (*operand == 'C')
+		*location_cntr += (strlen(operand) - 3);
+	else if (*operand == 'X')
+		*location_cntr += 1;
+
+	return 0;
+}
+
+static int dirlc_word(const char *opcode, const char *operand, uint32_t *location_cntr)
+{
+	*location_cntr += 3;
+
+	return 0;
+}
+
+static int dirlc_resw(const char *opcode, const char *operand, uint32_t *location_cntr)
+{
+	*location_cntr += 3 * atoi(operand);
+
+	return 0;
+}
+
+static int dirlc_resb(const char *opcode, const char *operand, uint32_t *location_cntr)
+{
+	*location_cntr += 1 * atoi(operand);
+
+	return 0;
+}
 
 static const struct sic_directive directives[] = {
-	{"START" },
-	{"END"  },
-	{"BYTE" },
-	{"WORD" },
-	{"RESB" },
-	{"RESW" },
-	{NULL   },
+	{"START", dirlc_start },
+	{"END"  , dirlc_end   },
+	{"BYTE" , dirlc_byte  },
+	{"WORD" , dirlc_word  },
+	{"RESB" , dirlc_resb  },
+	{"RESW" , dirlc_resw  },
+	{NULL   , },
 };
 
 static int directive_match(const void *key1, const void *key2)
