@@ -5,6 +5,7 @@
 
 #include "optbl.h"
 #include "directive.h"
+#include "symtbl.h"
 
 #define	BUF_LEN	4096
 
@@ -12,6 +13,7 @@ static const char FILE_NAME[] = "sic_sample_1.S";
 
 static struct chtbl_t op_table;
 static struct chtbl_t directive_table;
+static struct chtbl_t symbol_table;
 
 static uint32_t location_counter = 0U;
 
@@ -74,6 +76,7 @@ static int update_location_cntr(struct instruction_t *instr)
 	char *label, *opcode, *operand;
 	struct op_entry *op, e_op;
 	struct sic_directive *dir, e_dir;
+	struct symtbl_entry *e_symbol;
 
 	label = instr->label;
 	opcode = instr->opcode;
@@ -84,6 +87,14 @@ static int update_location_cntr(struct instruction_t *instr)
 	if (label) {
 		/* TODO */
 		/* update symbol table */
+		e_symbol = (struct symtbl_entry *) malloc(sizeof(struct symtbl_entry));
+		label = (char *) malloc(strlen(instr->label) + 1);
+		sprintf(label, "%s", instr->label);
+
+		e_symbol->symbol = label;
+		e_symbol->location = location_counter;
+		chtbl_insert(&symbol_table, e_symbol);
+
 		printf("\t%s\t", label);
 	} else {
 		printf("\t\t");
@@ -174,6 +185,7 @@ int main(int argc, char *argv[])
 		printf("init directive table fail\n");
 		exit(1);
 	}
+	symbol_table_init(&symbol_table);
 
 	source = fopen(FILE_NAME, "r");
 
@@ -193,6 +205,7 @@ int main(int argc, char *argv[])
 	}
 
 	fclose(source);
+	chtbl_destroy(&symbol_table);
 
 	return 0;
 }
