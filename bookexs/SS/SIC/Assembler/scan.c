@@ -16,6 +16,8 @@ static struct chtbl_t directive_table;
 static struct chtbl_t symbol_table;
 
 static uint32_t location_counter = 0U;
+static uint32_t start_addr = 0U;
+static uint32_t program_len = 0U;
 
 struct instruction_t {
 	char *label;
@@ -77,6 +79,7 @@ static int update_location_cntr(struct instruction_t *instr)
 	struct op_entry *op, e_op;
 	struct sic_directive *dir, e_dir;
 	struct symtbl_entry *e_symbol;
+	int ret;
 
 	label = instr->label;
 	opcode = instr->opcode;
@@ -125,7 +128,11 @@ static int update_location_cntr(struct instruction_t *instr)
 	if (op) {
 		optbl_lc(op->memonic, operand, &location_counter);
 	} else if (dir) {
-		if (dir->location_update(dir->directive, operand, &location_counter)) {
+		ret = dir->location_update(dir->directive, operand, &location_counter);
+		if (ret == DIRECT_START) {
+			start_addr = location_counter;
+		} else if (ret == DIRECT_END) {
+			program_len = location_counter - start_addr;
 			printf("\n");
 			return 1;
 		}

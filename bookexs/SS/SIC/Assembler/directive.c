@@ -25,12 +25,12 @@ static int dirlc_start(const char *opcode, const char *operand, uint32_t *locati
 
 	*location_cntr = cntr;
 
-	return 0;
+	return DIRECT_START;
 }
 
 static int dirlc_end(const char *opcode, const char *operand, uint32_t *location_cntr)
 {
-	return -1;
+	return DIRECT_END;
 }
 
 static int dirlc_byte(const char *opcode, const char *operand, uint32_t *location_cntr)
