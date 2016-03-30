@@ -1,0 +1,59 @@
+[dump_y86_registers]
+	PC: 0x00000000
+	eax: 0x0000FFFF
+	ecx: 0xFFFF0000
+	edx: 0x00000000
+	ebx: 0x00000000
+	esi: 0x00000000
+	edi: 0x00000000
+	esp: 0x00000000
+	ebp: 0x00000000
+
+[dump_instruction]
+code: 0x30
+	register index: 0xF0
+	immdediate value: 0xFFFF0000
+
+[dump_y86_registers]
+	PC: 0x00000006
+	eax: 0xFFFF0000
+	ecx: 0xFFFF0000
+	edx: 0x00000000
+	ebx: 0x00000000
+	esi: 0x00000000
+	edi: 0x00000000
+	esp: 0x00000000
+	ebp: 0x00000000
+
+[dump_instruction]
+code: 0x30
+	register index: 0xF1
+	immdediate value: 0x0000FFFF
+
+[dump_y86_registers]
+	PC: 0x0000000C
+	eax: 0xFFFF0000
+	ecx: 0x0000FFFF
+	edx: 0x00000000
+	ebx: 0x00000000
+	esi: 0x00000000
+	edi: 0x00000000
+	esp: 0x00000000
+	ebp: 0x00000000
+
+[dump_instruction]
+code: 0x10
+	register index: 0x00
+	immdediate value: 0x00000000
+
+[dump_y86_registers]
+	PC: 0x0000000F
+	eax: 0xFFFF0000
+	ecx: 0x0000FFFF
+	edx: 0x00000000
+	ebx: 0x00000000
+	esi: 0x00000000
+	edi: 0x00000000
+	esp: 0x00000000
+	ebp: 0x00000000
+
