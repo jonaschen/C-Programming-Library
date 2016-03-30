@@ -9,7 +9,8 @@
 
 #define	BUF_LEN	4096
 
-static const char FILE_NAME[] = "sic_sample_1.S";
+static const char SRC_FILE[] = "sic_sample_1.S";
+static const char INTER_FILE[] = "inter.d";
 
 static struct chtbl_t op_table;
 static struct chtbl_t directive_table;
@@ -18,6 +19,7 @@ static struct chtbl_t symbol_table;
 static uint32_t location_counter = 0U;
 static uint32_t start_addr = 0U;
 static uint32_t program_len = 0U;
+static FILE *intermediate = NULL;
 
 struct instruction_t {
 	char *label;
@@ -85,7 +87,7 @@ static int update_location_cntr(struct instruction_t *instr)
 	opcode = instr->opcode;
 	operand = instr->operand;
 
-	printf("%04X", location_counter);
+	fprintf(intermediate, "%04X", location_counter);
 
 	if (label) {
 		/* TODO */
@@ -98,31 +100,32 @@ static int update_location_cntr(struct instruction_t *instr)
 		e_symbol->location = location_counter;
 		chtbl_insert(&symbol_table, e_symbol);
 
-		printf("\t%s\t", label);
+		//fprintf(intermediate, "\t%s\t", label);
 	} else {
-		printf("\t\t");
+		//fprintf(intermediate, "\t\t");
 	}
 
 	if (opcode) {
 		e_op.memonic = opcode;
 		op = &e_op;
 		if (chtbl_lookup(&op_table, (void **) &op) == 0) {
-			printf("opcode:%s\t\t%02X", opcode, op->opcode);
+			//fprintf(intermediate, "\t%s\t\t%02X", opcode, op->opcode);
+			fprintf(intermediate, "\t%s", opcode);
 		} else {
 			op = NULL;
 			e_dir.directive = opcode;
 			dir = &e_dir;
 			if (chtbl_lookup(&directive_table, (void **) &dir) == 0) {
-				printf("directive:%s", opcode);
+				fprintf(intermediate, "\t%s", opcode);
 			} else {
 				dir = NULL;
-				printf("undefined opcode:%s", opcode);
+				fprintf(stderr, "undefined opcode:%s", opcode);
 			}
 		}
 	}
 
 	if (operand) {
-		//printf("\t\toperand:%s\n", operand);
+		fprintf(intermediate, "\t%s", operand);
 	}
 
 	if (op) {
@@ -133,12 +136,12 @@ static int update_location_cntr(struct instruction_t *instr)
 			start_addr = location_counter;
 		} else if (ret == DIRECT_END) {
 			program_len = location_counter - start_addr;
-			printf("\n");
+			fprintf(intermediate, "\n");
 			return 1;
 		}
 	}
 
-	printf("\n");
+	fprintf(intermediate, "\n");
 	//printf("\t\tlocation:%04x\n", location_counter);
 
 	return 0;
@@ -183,6 +186,8 @@ int main(int argc, char *argv[])
 	int ret;
 	struct instruction_t instr;
 
+	intermediate = stdout;
+
 	if (optbl_init(&op_table)) {
 		printf("init optbl fail\n");
 		exit(1);
@@ -194,7 +199,8 @@ int main(int argc, char *argv[])
 	}
 	symbol_table_init(&symbol_table);
 
-	source = fopen(FILE_NAME, "r");
+	source = fopen(SRC_FILE, "r");
+	intermediate = fopen(INTER_FILE, "w");
 
 	while (1) {
 		memset(buffer, '\0', sizeof(char) * BUF_LEN);
@@ -210,8 +216,21 @@ int main(int argc, char *argv[])
 		}
 		line_number++;
 	}
-
 	fclose(source);
+	fclose(intermediate);
+
+	intermediate = fopen(INTER_FILE, "r");
+	while (1) {
+		memset(buffer, '\0', sizeof(char) * BUF_LEN);
+		ret = get_line_instruction(intermediate, buffer);
+		printf("%s\n", buffer);
+		if (ret > 1) {
+		} else if (ret == 0) {
+			break;
+		}
+	}
+
+	fclose(intermediate);
 	chtbl_destroy(&symbol_table);
 
 	return 0;
