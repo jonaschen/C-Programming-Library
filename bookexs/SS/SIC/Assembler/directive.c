@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "utils.h"
 #include "directive.h"
 
 
@@ -12,20 +13,24 @@ static int dirlc_start(const char *opcode, const char *operand, uint32_t *locati
 	const char *ptr = operand;
 	uint32_t cntr = 0U;
 
-	while (isxdigit(*ptr)) {
-		cntr *= 16;
-		if (isdigit(*ptr)) {
-			cntr += (*ptr - '0');
-		} else {
-			cntr += (toupper(*ptr) - 'A' + 10);
-		}
-
-		ptr++;
-	}
-
-	*location_cntr = cntr;
+	*location_cntr = utils_atoh(ptr);
 
 	return DIRECT_START;
+}
+
+static int dirasm_start(const char *addr, const char *operand, FILE *bin)
+{
+	return DIRECT_START;
+}
+
+static int dirasm_rsub(const char *addr, const char *operand, FILE *bin)
+{
+	return DIRECT_RSUB;
+}
+
+static int dirasm_byte(const char *addr, const char *operand, FILE *bin)
+{
+	return DIRECT_BYTE;
 }
 
 static int dirlc_end(const char *opcode, const char *operand, uint32_t *location_cntr)
@@ -65,13 +70,13 @@ static int dirlc_resb(const char *opcode, const char *operand, uint32_t *locatio
 }
 
 static const struct sic_directive directives[] = {
-	{"START", dirlc_start },
-	{"END"  , dirlc_end   },
-	{"BYTE" , dirlc_byte  },
-	{"WORD" , dirlc_word  },
-	{"RESB" , dirlc_resb  },
-	{"RESW" , dirlc_resw  },
-	{NULL   , },
+	{"START", dirlc_start, dirasm_start},
+	{"END"  , dirlc_end,   NULL},
+	{"BYTE" , dirlc_byte,  NULL},
+	{"WORD" , dirlc_word,  NULL},
+	{"RESB" , dirlc_resb,  dirasm_rsub},
+	{"RESW" , dirlc_resw,  NULL},
+	{NULL   , NULL,        NULL},
 };
 
 static int directive_match(const void *key1, const void *key2)

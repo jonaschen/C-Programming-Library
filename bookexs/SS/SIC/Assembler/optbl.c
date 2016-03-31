@@ -2,6 +2,7 @@
 #include <string.h>
 
 #include "optbl.h"
+#include "symtbl.h"
 
 int optbl_lc(const char *opcode, const char *operand, uint32_t *location_cntr)
 {
@@ -13,34 +14,70 @@ int optbl_lc(const char *opcode, const char *operand, uint32_t *location_cntr)
 	return 0;
 }
 
+static int asm_addr_parse(const char *operand, struct chtbl_t *symtbl, char *record)
+{
+	struct symtbl_entry *sym, e_sym;
+
+	*record = '\0';
+
+	sym = &e_sym;
+	sym->symbol = (char *) operand;
+	if (chtbl_lookup(symtbl, (void **) &sym) == 0)
+		sprintf(record, "%04X", sym->location);
+	else
+		sprintf(record, "%04X", utils_atoh(operand));
+
+	return strlen(record);
+}
+
+static int asm_store(const char *operand, struct chtbl_t *symtbl, char *record)
+{
+	return asm_addr_parse(operand, symtbl, record);
+}
+
+static int asm_jump(const char *operand, struct chtbl_t *symtbl, char *record)
+{
+	return asm_addr_parse(operand, symtbl, record);
+}
+
+static int asm_load(const char *operand, struct chtbl_t *symtbl, char *record)
+{
+	return asm_addr_parse(operand, symtbl, record);
+}
+
+static int asm_comp(const char *operand, struct chtbl_t *symtbl, char *record)
+{
+	return asm_addr_parse(operand, symtbl, record);
+}
+
 static const struct op_entry op_codes[] = {
-	{"ADD",  0x18},
-	{"AND",  0x40},
-	{"COMP", 0x28},
-	{"DIV",  0x24},
-	{"J",	 0x3C},
-	{"JEQ",  0x30},
-	{"JGT",  0x34},
-	{"JLT",  0x38},
-	{"JSUB", 0x48},
-	{"LDA",  0x00},
-	{"LDCH", 0x50},
-	{"LDL",  0x08},
-	{"LDX",  0x04},
-	{"UML",  0x20},
-	{"OR",   0x44},
-	{"RD",   0xD8},
-	{"RSUB", 0x4C},
-	{"STA",  0x0C},
-	{"STCH", 0x54},
-	{"STL",  0x14},
-	{"STSW", 0xE8},
-	{"STX",  0x10},
-	{"SUB",  0x1C},
-	{"TD",   0xE0},
-	{"TIX",  0x2C},
-	{"WD",   0xDC},
-	{NULL,   0xFF},
+	{"ADD",  0x18,	NULL},
+	{"AND",  0x40,	NULL},
+	{"COMP", 0x28,	asm_comp},
+	{"DIV",  0x24,	NULL},
+	{"J",	 0x3C,	asm_jump},
+	{"JEQ",  0x30,	asm_jump},
+	{"JGT",  0x34,	asm_jump},
+	{"JLT",  0x38,	asm_jump},
+	{"JSUB", 0x48,	asm_jump},
+	{"LDA",  0x00,	asm_load},
+	{"LDCH", 0x50,	asm_load},
+	{"LDL",  0x08,	asm_load},
+	{"LDX",  0x04,	asm_load},
+	{"UML",  0x20,	NULL},
+	{"OR",   0x44,	NULL},
+	{"RD",   0xD8,	NULL},
+	{"RSUB", 0x4C,	NULL},
+	{"STA",  0x0C,	asm_store},
+	{"STCH", 0x54,	asm_store},
+	{"STL",  0x14,	asm_store},
+	{"STSW", 0xE8,	asm_store},
+	{"STX",  0x10,	asm_store},
+	{"SUB",  0x1C,	NULL},
+	{"TD",   0xE0,	NULL},
+	{"TIX",  0x2C,	NULL},
+	{"WD",   0xDC,	NULL},
+	{NULL,   0xFF,	NULL},
 };
 
 static int opcode_match(const void *key1, const void *key2)

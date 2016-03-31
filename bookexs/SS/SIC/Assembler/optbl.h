@@ -7,6 +7,7 @@
 struct op_entry {
 	const char 	*memonic;
 	const uint8_t	opcode;
+	int (*assemble)(const char *operand, struct chtbl_t *symtbl, char *record);
 };
 
 
