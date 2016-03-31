@@ -26,6 +26,7 @@ static char *program_name = NULL;
 
 #define MAX_TEXT_RECORD_LEN	100
 static int record_len = 0;
+static int asm_parse_line = 0;
 static char text_record[MAX_TEXT_RECORD_LEN + 1];
 
 struct instruction_t {
@@ -127,9 +128,10 @@ static int asm_parse_columns(char *line, FILE *bin)
 
 	fprintf(stdout, "%s:%s:%s\n", addr, opcode, (operand == NULL) ? "": operand);
 
-	if (record_len >= 60) {
+	if (asm_parse_line >= 10) {
 		flush_text_record(bin);
 		location_counter = utils_atoh(addr);
+		asm_parse_line = 0;
 	}
 
 	dirc = &e_dirc;
@@ -137,31 +139,19 @@ static int asm_parse_columns(char *line, FILE *bin)
 	e_dirc.directive = opcode;
 	e_op.memonic = opcode;
 	if (chtbl_lookup(&directive_table, (void **) &dirc) == 0) {
+		asm_parse_line++;
 		if (dirc->assemble) {
-			ret = dirc->assemble(addr, operand, bin);
+			ret = dirc->assemble(addr, operand, &text_record[record_len]);
 			if (ret == DIRECT_START) {
 				fprintf(bin, "%-6s%06X%06X", program_name, start_addr, program_len); 
 				location_counter = start_addr;
-			} else if (ret == DIRECT_RSUB) {
-				sprintf(&text_record[record_len], "4C0000");
-				record_len += 6;
-				flush_text_record(bin);
-				location_counter = utils_atoh(addr);
-			} else if (ret == DIRECT_BYTE) {
-				ptr = operand + 2;
-
-				if (*operand == 'C') {
-					cnt = (strlen(operand) - 3);
-					while (cnt) {
-						sprintf(&text_record[record_len++], "%2X", *ptr++);
-						cnt--;
-					}
-				} else if (*operand == 'X') {
-					sprintf(&text_record[record_len++], "%C%C", *ptr, *(ptr + 1));
-				}
+				asm_parse_line = 0;
+			} else {
+				record_len += ret;
 			}
 		}
 	} else if (chtbl_lookup(&op_table, (void **) &op) == 0) {
+		asm_parse_line++;
 		if (op->assemble) {
 			sprintf(&text_record[record_len], "%02X", op->opcode);
 			record_len += 2;

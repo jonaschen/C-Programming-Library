@@ -6,7 +6,7 @@
 #include "chtbl.h"
 
 enum DIRECTIVE_TYPE {
-	DIRECT_START = 1,
+	DIRECT_START = 0xFF,
 	DIRECT_END,
 	DIRECT_RSUB,
 	DIRECT_BYTE,
@@ -15,7 +15,7 @@ enum DIRECTIVE_TYPE {
 struct sic_directive {
 	const char *directive;
 	int (*location_update)(const char *opcode, const char *operand, uint32_t *location_cntr);
-	int (*assemble)(const char *addr, const char *operand, FILE *bin);
+	int (*assemble)(const char *addr, const char *operand, char *record);
 };
 
 

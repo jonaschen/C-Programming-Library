@@ -30,6 +30,13 @@ static int asm_addr_parse(const char *operand, struct chtbl_t *symtbl, char *rec
 	return strlen(record);
 }
 
+static int asm_rsub(const char *operand, struct chtbl_t *symtbl, char *record)
+{
+	sprintf(record, "0000");
+
+	return 4;
+}
+
 static int asm_store(const char *operand, struct chtbl_t *symtbl, char *record)
 {
 	return asm_addr_parse(operand, symtbl, record);
@@ -50,6 +57,11 @@ static int asm_comp(const char *operand, struct chtbl_t *symtbl, char *record)
 	return asm_addr_parse(operand, symtbl, record);
 }
 
+static int asm_io(const char *operand, struct chtbl_t *symtbl, char *record)
+{
+	return asm_addr_parse(operand, symtbl, record);
+}
+
 static const struct op_entry op_codes[] = {
 	{"ADD",  0x18,	NULL},
 	{"AND",  0x40,	NULL},
@@ -66,16 +78,16 @@ static const struct op_entry op_codes[] = {
 	{"LDX",  0x04,	asm_load},
 	{"UML",  0x20,	NULL},
 	{"OR",   0x44,	NULL},
-	{"RD",   0xD8,	NULL},
-	{"RSUB", 0x4C,	NULL},
+	{"RD",   0xD8,	asm_io},
+	{"RSUB", 0x4C,	asm_rsub},
 	{"STA",  0x0C,	asm_store},
 	{"STCH", 0x54,	asm_store},
 	{"STL",  0x14,	asm_store},
 	{"STSW", 0xE8,	asm_store},
 	{"STX",  0x10,	asm_store},
 	{"SUB",  0x1C,	NULL},
-	{"TD",   0xE0,	NULL},
-	{"TIX",  0x2C,	NULL},
+	{"TD",   0xE0,	asm_io},
+	{"TIX",  0x2C,	asm_io},
 	{"WD",   0xDC,	NULL},
 	{NULL,   0xFF,	NULL},
 };

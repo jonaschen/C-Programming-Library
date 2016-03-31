@@ -18,19 +18,35 @@ static int dirlc_start(const char *opcode, const char *operand, uint32_t *locati
 	return DIRECT_START;
 }
 
-static int dirasm_start(const char *addr, const char *operand, FILE *bin)
+static int dirasm_start(const char *addr, const char *operand, char *record)
 {
 	return DIRECT_START;
 }
 
-static int dirasm_rsub(const char *addr, const char *operand, FILE *bin)
+static int dirasm_word(const char *addr, const char *operand, char *record)
 {
-	return DIRECT_RSUB;
-}
+	sprintf(record, "%06X", utils_atoh(operand));
 
-static int dirasm_byte(const char *addr, const char *operand, FILE *bin)
+	return 6;
+}
+static int dirasm_byte(const char *addr, const char *operand, char *record)
 {
-	return DIRECT_BYTE;
+	char *ptr = (char *) (operand + 2), *buf = record;
+	int ret = 0, cnt;
+
+	if (*operand == 'C') {
+		cnt = (strlen(operand) - 3);
+		while (cnt) {
+			sprintf(&buf[ret], "%2X", *ptr++);
+			ret += 2;
+			cnt--;
+		}
+	} else if (*operand == 'X') {
+		sprintf(&buf[ret], "%C%C", *ptr, *(ptr + 1));
+		ret = 2;
+	}
+
+	return ret;
 }
 
 static int dirlc_end(const char *opcode, const char *operand, uint32_t *location_cntr)
@@ -72,9 +88,9 @@ static int dirlc_resb(const char *opcode, const char *operand, uint32_t *locatio
 static const struct sic_directive directives[] = {
 	{"START", dirlc_start, dirasm_start},
 	{"END"  , dirlc_end,   NULL},
-	{"BYTE" , dirlc_byte,  NULL},
-	{"WORD" , dirlc_word,  NULL},
-	{"RESB" , dirlc_resb,  dirasm_rsub},
+	{"BYTE" , dirlc_byte,  dirasm_byte},
+	{"WORD" , dirlc_word,  dirasm_word},
+	{"RESB" , dirlc_resb,  NULL},
 	{"RESW" , dirlc_resw,  NULL},
 	{NULL   , NULL,        NULL},
 };
