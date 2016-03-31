@@ -12,7 +12,7 @@
 
 static const char SRC_FILE[] = "sic_sample_1.S";
 static const char INTER_FILE[] = "inter.d";
-static const char MACHINE_FILE[] = "sic.bin";
+static const char OBJECT_FILE[] = "sic.obj";
 
 static struct chtbl_t op_table;
 static struct chtbl_t directive_table;
@@ -81,9 +81,10 @@ static int scan_parse_columns(int number, char *line, struct instruction_t *inst
 	if (strlen(operand) == 0) {
 		operand = NULL;
 	} else {
-		//while (!isspace(*ptr) && *ptr != '\0')
-		//	ptr++;
-		//*ptr = '\0';
+		while (!isspace(*ptr) && *ptr != '\0')
+			ptr++;
+		if (*(ptr - 1) != ',')
+			*ptr = '\0';
 	}
 
 	instr->label = label;
@@ -93,7 +94,7 @@ static int scan_parse_columns(int number, char *line, struct instruction_t *inst
 	return 0;
 }
 
-static int asm_parse_columns(char *line, FILE *bin)
+static int asm_parse_columns(char *line, FILE *obj)
 {
 	char *addr, *opcode, *operand;
 	char *dup, *ptr;
@@ -129,7 +130,7 @@ static int asm_parse_columns(char *line, FILE *bin)
 	fprintf(stdout, "%s:%s:%s\n", addr, opcode, (operand == NULL) ? "": operand);
 
 	if (asm_parse_line >= 10) {
-		flush_text_record(bin);
+		flush_text_record(obj);
 		location_counter = utils_atoh(addr);
 		asm_parse_line = 0;
 	}
@@ -143,15 +144,15 @@ static int asm_parse_columns(char *line, FILE *bin)
 		if (dirc->assemble) {
 			ret = dirc->assemble(addr, operand, &text_record[record_len]);
 			if (ret == DIRECT_START) {
-				fprintf(bin, "%-6s%06X%06X", program_name, start_addr, program_len); 
+				fprintf(obj, "%-6s%06X%06X", program_name, start_addr, program_len); 
 				location_counter = start_addr;
 				asm_parse_line = 0;
 			} else if (ret == DIRECT_END) {
 				if (record_len) {
-					flush_text_record(bin);
+					flush_text_record(obj);
 					location_counter = utils_atoh(addr);
 				}
-				fprintf(bin, "\nE%06X", start_addr); 
+				fprintf(obj, "\nE%06X", start_addr); 
 			} else {
 				record_len += ret;
 			}
@@ -277,7 +278,7 @@ static int get_line_instruction(FILE *source, char *buffer)
 
 int main(int argc, char *argv[])
 {
-	FILE *source, *image;
+	FILE *source, *object;
 	char buffer[BUF_LEN];
 	int line_number = 0;
 	int ret;
@@ -317,20 +318,20 @@ int main(int argc, char *argv[])
 	fclose(intermediate);
 
 	intermediate = fopen(INTER_FILE, "r");
-	image = fopen(MACHINE_FILE, "w");
-	fprintf(image, "H");
+	object = fopen(OBJECT_FILE, "w");
+	fprintf(object, "H");
 	while (1) {
 		memset(buffer, '\0', sizeof(char) * BUF_LEN);
 		ret = get_line_instruction(intermediate, buffer);
 		if (ret > 1) {
-			asm_parse_columns(buffer, image);
-	//fprintf(image, "%-6s", "COPY");
+			asm_parse_columns(buffer, object);
+	//fprintf(object, "%-6s", "COPY");
 		} else if (ret == 0) {
 			break;
 		}
 	}
 
-	fclose(image);
+	fclose(object);
 	fclose(intermediate);
 	chtbl_destroy(&symbol_table);
 
