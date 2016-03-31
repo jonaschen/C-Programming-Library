@@ -44,6 +44,7 @@ static int flush_text_record(FILE *obj)
 
 	return 0;
 }
+
 static int scan_parse_columns(int number, char *line, struct instruction_t *instr)
 {
 	char *label, *opcode, *operand;
@@ -80,9 +81,9 @@ static int scan_parse_columns(int number, char *line, struct instruction_t *inst
 	if (strlen(operand) == 0) {
 		operand = NULL;
 	} else {
-		while (!isspace(*ptr) && *ptr != '\0')
-			ptr++;
-		*ptr = '\0';
+		//while (!isspace(*ptr) && *ptr != '\0')
+		//	ptr++;
+		//*ptr = '\0';
 	}
 
 	instr->label = label;
@@ -120,9 +121,8 @@ static int asm_parse_columns(char *line, FILE *bin)
 		ptr++;
 
 	operand = ptr;
-	while (!isspace(*ptr) && *ptr != '\0')
+	while (*ptr != '\0')
 		ptr++;
-	*ptr = '\0';
 	if (!strlen(operand))
 		operand = NULL;
 
@@ -146,6 +146,12 @@ static int asm_parse_columns(char *line, FILE *bin)
 				fprintf(bin, "%-6s%06X%06X", program_name, start_addr, program_len); 
 				location_counter = start_addr;
 				asm_parse_line = 0;
+			} else if (ret == DIRECT_END) {
+				if (record_len) {
+					flush_text_record(bin);
+					location_counter = utils_atoh(addr);
+				}
+				fprintf(bin, "\nE%06X", start_addr); 
 			} else {
 				record_len += ret;
 			}

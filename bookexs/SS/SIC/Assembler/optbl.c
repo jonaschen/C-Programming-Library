@@ -62,6 +62,36 @@ static int asm_io(const char *operand, struct chtbl_t *symtbl, char *record)
 	return asm_addr_parse(operand, symtbl, record);
 }
 
+static int asm_ch(const char *operand, struct chtbl_t *symtbl, char *record)
+{
+	char *label = (char *) operand, reg = 0;
+	char *ptr = label;
+	char buf[5];
+	uint32_t value;
+
+	while (*ptr != '\0' && *ptr != ',')
+		ptr++;
+
+	/* find reg*/
+	if (*ptr == ',') {
+		*ptr++ = '\0';
+	}
+	while (!isalpha(*ptr) && *ptr != '\0')
+		ptr++;
+	if (*ptr != '\0');
+		reg = *ptr;
+	asm_addr_parse(label, symtbl, buf);
+
+	value = utils_atoh(buf);
+
+	if (reg == 'X')
+		value |= (1 << 15);
+
+	sprintf(record, "%04X", value);
+
+	return 4;
+}
+
 static const struct op_entry op_codes[] = {
 	{"ADD",  0x18,	NULL},
 	{"AND",  0x40,	NULL},
@@ -73,7 +103,7 @@ static const struct op_entry op_codes[] = {
 	{"JLT",  0x38,	asm_jump},
 	{"JSUB", 0x48,	asm_jump},
 	{"LDA",  0x00,	asm_load},
-	{"LDCH", 0x50,	asm_load},
+	{"LDCH", 0x50,	asm_ch},
 	{"LDL",  0x08,	asm_load},
 	{"LDX",  0x04,	asm_load},
 	{"UML",  0x20,	NULL},
@@ -81,7 +111,7 @@ static const struct op_entry op_codes[] = {
 	{"RD",   0xD8,	asm_io},
 	{"RSUB", 0x4C,	asm_rsub},
 	{"STA",  0x0C,	asm_store},
-	{"STCH", 0x54,	asm_store},
+	{"STCH", 0x54,	asm_ch},
 	{"STL",  0x14,	asm_store},
 	{"STSW", 0xE8,	asm_store},
 	{"STX",  0x10,	asm_store},

@@ -23,9 +23,14 @@ static int dirasm_start(const char *addr, const char *operand, char *record)
 	return DIRECT_START;
 }
 
+static int dirasm_end(const char *addr, const char *operand, char *record)
+{
+	return DIRECT_END;
+}
+
 static int dirasm_word(const char *addr, const char *operand, char *record)
 {
-	sprintf(record, "%06X", utils_atoh(operand));
+	sprintf(record, "%06X", atoi(operand));
 
 	return 6;
 }
@@ -87,7 +92,7 @@ static int dirlc_resb(const char *opcode, const char *operand, uint32_t *locatio
 
 static const struct sic_directive directives[] = {
 	{"START", dirlc_start, dirasm_start},
-	{"END"  , dirlc_end,   NULL},
+	{"END"  , dirlc_end,   dirasm_end},
 	{"BYTE" , dirlc_byte,  dirasm_byte},
 	{"WORD" , dirlc_word,  dirasm_word},
 	{"RESB" , dirlc_resb,  NULL},
