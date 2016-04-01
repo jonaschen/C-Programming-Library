@@ -34,6 +34,8 @@ struct instruction_t {
 	char *opcode;
 	char *operand;
 };
+
+
 static int flush_text_record(FILE *obj)
 {
 	if (record_len)
@@ -45,56 +47,99 @@ static int flush_text_record(FILE *obj)
 	return 0;
 }
 
-static int scan_parse_columns(int number, char *line, struct instruction_t *instr)
+/*
+ *
+ */
+typedef enum _parsing_state_t {
+	STATE_INIT,
+	STATE_IN_LABEL,
+	STATE_BEFORE_OPCODE,
+	STATE_IN_OPCODE,
+	STATE_BEFORE_OPERAND,
+	STATE_IN_OPERAND,
+} parsing_state_t;
+
+static int scan_parse_columns(char *line, struct instruction_t *instr)
 {
-	char *label, *opcode, *operand;
-	char *ptr = line;
+	char *label = NULL, *opcode = NULL, *operand = NULL, *temp;
+	char *ptr = line, c;
+	int len;
+	parsing_state_t state = STATE_INIT;
 
-	/* Parse label column */
-	if (isspace(*ptr)) {
-		label = NULL;
-	} else {
-		label = line;
-		while (!isspace(*ptr++));
-		ptr--;
-		*ptr++ = '\0';
-	}
+	do {
+		switch (state) {
+		case STATE_INIT:
+			if (IS_LINE_END(*ptr))
+				break;
+			if (!isspace(*ptr)) {
+				temp = ptr;
+				state = STATE_IN_LABEL;
+				len = 1;
+			} else {
+				state = STATE_BEFORE_OPCODE;
+			}
+			break;
 
-	/* Parse opcode column */
-	while (isspace(*ptr))
-		ptr++;
+		case STATE_IN_LABEL:
+			if (isalnum(*ptr) || IS_COLON(*ptr)) {
+				len++;
+			} else {
+				label = (char *) malloc(len + 1);
+				memcpy(label, temp, len);
+				label[len] = '\0';
+				state = STATE_BEFORE_OPCODE;
+			}
+			break;
 
-	opcode = ptr;
-	if (strlen(opcode) == 0) {
-		opcode = NULL;
-	} else {
-		while (isalnum(*ptr))
-			ptr++;
-		*ptr++ = '\0';
-	}
+		case STATE_IN_OPCODE:
+			if (isalnum(*ptr)) {
+				len++;
+			} else {
+				opcode = (char *) malloc(len + 1);
+				memcpy(opcode, temp, len);
+				opcode[len] = '\0';
+				state = STATE_BEFORE_OPERAND;
+			}
+			break;
 
-	/* Parse operand column */
-	while (isspace(*ptr))
-		ptr++;
+		case STATE_IN_OPERAND:
+			if (isspace(*ptr) || IS_LINE_END(*ptr)) {
+				operand = (char *) malloc(len + 1);
+				memcpy(operand, temp, len);
+				operand[len] = '\0';
+				break;
+			} else {
+				len++;
+			}
+			break;
 
-	operand = ptr;
-	if (strlen(operand) == 0) {
-		operand = NULL;
-	} else {
-		while (!isspace(*ptr) && *ptr != '\0')
-			ptr++;
-		//if (*(ptr - 1) != ',')
-		*ptr = '\0';
-	}
+		case STATE_BEFORE_OPCODE:
+		case STATE_BEFORE_OPERAND:
+			if (IS_LINE_END(*ptr))
+				break;
+			if (!isspace(*ptr)) {
+				state++;
+				temp = ptr;
+				len = 1;
+			}
+			break;
+		default:
+			break;
+		}
+		c = *ptr++;
+	} while (!IS_LINE_END(c));
 
 	instr->label = label;
 	instr->opcode = opcode;
 	instr->operand = operand;
 
+	if (!label && !opcode)
+		return -1;
+
 	return 0;
 }
 
-static int asm_parse_columns(char *line, FILE *obj)
+static int asm_to_object(FILE *obj, char *line, struct instruction_t *instr)
 {
 	char *addr, *opcode, *operand;
 	char *dup, *ptr;
@@ -102,32 +147,11 @@ static int asm_parse_columns(char *line, FILE *obj)
 	struct op_entry *op, e_op;
 	int ret, cnt;
 
-	dup = (char *) malloc(strlen(line) + 1);
+	addr = instr->label;
+	opcode = instr->opcode;
+	operand = instr->operand;
 
-	sprintf(dup, "%s", line);
-	ptr = dup;
-
-	/* Parse addr column */
-	addr = ptr;
-	*(addr + 4) = '\0'; 
-
-	/* Parse opcode column */
-	opcode = ptr = addr + 5;
-	while (!isspace(*ptr) && *ptr != '\0')
-		ptr++;
-	*ptr++ = '\0';
-
-	/* Parse operand column */
-	while (isspace(*ptr))
-		ptr++;
-
-	operand = ptr;
-	while (!isspace(*ptr) && *ptr != '\0')
-		ptr++;
-	if (!strlen(operand))
-		operand = NULL;
-
-	fprintf(stdout, "%s:%s:%s\n", addr, opcode, (operand == NULL) ? "": operand);
+	fprintf(stderr, "%s:%s:%s\n", addr, opcode, (operand == NULL) ? "": operand);
 
 	if (asm_parse_line >= 10) {
 		flush_text_record(obj);
@@ -165,8 +189,6 @@ static int asm_parse_columns(char *line, FILE *obj)
 			record_len += op->assemble(operand, &symbol_table, &text_record[record_len]);
 		}
 	}
-
-	free(dup);
 
 	return 0;
 }
@@ -248,9 +270,6 @@ static int update_location_cntr(struct instruction_t *instr)
 /*
  *
  */
-#define IS_SEMICOLON(c)		(c == ';')
-#define IS_COMMA(c)		(c == ',')
-#define IS_SPECIAL_SYMBOL(c)	(IS_SEMICOLON(c) || IS_COMMA(c))
 static int special_symbol_handler(FILE *source, char *ch)
 {
 	int len = 0, ret;
@@ -342,11 +361,15 @@ int main(int argc, char *argv[])
 		memset(buffer, '\0', sizeof(char) * BUF_LEN);
 		ret = get_line_instruction(source, buffer);
 		if (ret > 1) {
-			ret = scan_parse_columns(line_number, buffer, &instr);
-			if (ret >= 0)
+			ret = scan_parse_columns(buffer, &instr);
+			if (ret >= 0) {
 				update_location_cntr(&instr);
-			if (ret == 1)
-				break;
+				if (instr.label) free(instr.label);
+				if (instr.opcode) free(instr.opcode);
+				if (instr.operand) free(instr.operand);
+			} else {
+				/* TODO: error handling */
+			}
 		} else if (ret == 0) {
 			break;
 		}
@@ -362,7 +385,8 @@ int main(int argc, char *argv[])
 		memset(buffer, '\0', sizeof(char) * BUF_LEN);
 		ret = get_line_instruction(intermediate, buffer);
 		if (ret > 1) {
-			asm_parse_columns(buffer, object);
+			ret = scan_parse_columns(buffer, &instr);
+			asm_to_object(object, buffer, &instr);
 	//fprintf(object, "%-6s", "COPY");
 		} else if (ret == 0) {
 			break;
