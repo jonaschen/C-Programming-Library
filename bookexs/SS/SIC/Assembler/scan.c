@@ -83,8 +83,8 @@ static int scan_parse_columns(int number, char *line, struct instruction_t *inst
 	} else {
 		while (!isspace(*ptr) && *ptr != '\0')
 			ptr++;
-		if (*(ptr - 1) != ',')
-			*ptr = '\0';
+		//if (*(ptr - 1) != ',')
+		*ptr = '\0';
 	}
 
 	instr->label = label;
@@ -122,7 +122,7 @@ static int asm_parse_columns(char *line, FILE *obj)
 		ptr++;
 
 	operand = ptr;
-	while (*ptr != '\0')
+	while (!isspace(*ptr) && *ptr != '\0')
 		ptr++;
 	if (!strlen(operand))
 		operand = NULL;
@@ -246,25 +246,63 @@ static int update_location_cntr(struct instruction_t *instr)
 }
 
 /*
+ *
+ */
+#define IS_SEMICOLON(c)		(c == ';')
+#define IS_COMMA(c)		(c == ',')
+#define IS_SPECIAL_SYMBOL(c)	(IS_SEMICOLON(c) || IS_COMMA(c))
+static int special_symbol_handler(FILE *source, char *ch)
+{
+	int len = 0, ret;
+	char c = *ch;
+
+	/* TODO: error handling of file operations */
+	switch (c) {
+	case ';':
+		do {
+			ret = fread(&c, sizeof(char), 1, source);
+			len++;
+		} while (c != '\n' && ret == 1);
+		*ch = '\0';
+		break;
+	case ',':
+		do {
+			ret = fread(&c, sizeof(char), 1, source);
+			len++;
+		} while (isspace(c) && ret == 1);
+
+		if (ret != 1) {
+			*ch = '\0';
+		} else {
+			ret = fseek(source, -1, SEEK_CUR);
+			*ch = ',';
+		}
+		break;
+	default:
+		break;
+	}
+
+	return len;
+}
+
+/*
  * Get one line of instruction. Comments are stripped out.
  */
 static int get_line_instruction(FILE *source, char *buffer)
 {
 	char c;
-	int len = 0;
+	int len = 0, ret;
 	size_t bytes;
 
 	do {
-		if (1 != fread(&c, sizeof(char), 1, source)) {
+		ret = fread(&c, sizeof(char), 1, source);
+		if (ret != 1) {
+			/* TODO: error handling if ret < 0 */
 			break;
 		}
 
-		if (c == ';') {
-			do {
-				bytes = fread(&c, sizeof(char), 1, source);
-			} while (c != '\n' && bytes == 1);
-			c = '\n';
-		}
+		if (IS_SPECIAL_SYMBOL(c))
+			special_symbol_handler(source, &c);
 
 		if (c == '\n') {
 			c = '\0';
