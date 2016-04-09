@@ -104,24 +104,22 @@ int levelorder_traversal(struct bitree_node *root, int (*visit)(struct bitree_no
 		cnt++;
 		if (node->left) {
 			queue_enqueue(q, node->left);
-			if (node == most_right)
-				next_level = node->left;
+			next_level = node->left;
 		}
 
 		if (node->right) {
 			queue_enqueue(q, node->right);
-			if (node == most_right)
-				next_level = node->right;
+			next_level = node->right;
 		}
 
-		if (most_right != next_level) {
+		if (node == most_right) {
 			level++;
 			most_right = next_level;
 		}
 	}
 
 	if (depth)
-		*depth = level;
+		*depth = level - 1;
 
 	return cnt;
 }

@@ -6,7 +6,7 @@ OUT_DIR = ../../output
 INCLUDE = ../../includes
 CFLAGS := -g
 CC := gcc
-LDADD := $(OUT_DIR)/bitree.o $(OUT_DIR)/stack.o $(OUT_DIR)/queue.o
+LDADD := $(OUT_DIR)/bitree.o $(OUT_DIR)/stack.o $(OUT_DIR)/queue.o $(OUT_DIR)/dlist.o
 
 .PHONY: all
 all: $(obj-prob) $(P)
