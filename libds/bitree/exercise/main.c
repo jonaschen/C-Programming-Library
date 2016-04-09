@@ -2,33 +2,7 @@
 
 #include "stack.h"
 #include "bitree.h"
-
-#define TEST_NUM	5
-
-/* 
- *	TODO: need a more general rule to build nodes for
- *	      the example tree.
- */
-void build123(struct bitree *tree)
-{
-	int i, n = TEST_NUM, *data;
-
-	data = (int *) malloc(n * sizeof(int));
-	if (!data)
-		exit(EXIT_FAILURE);
-
-	for (i = 0; i < n; i++)
-		data[i] = i + 1;
-
-	if (bitree_ins_left(tree, NULL, (const void *) &data[1]) != 0)
-		exit(EXIT_FAILURE);
-
-	bitree_ins_left(tree, tree->root, (const void *) &data[0]);
-	bitree_ins_right(tree, tree->root, (const void *) &data[2]);
-
-//	bitree_ins_left(tree, tree->root->left, (const void *) &data[0]);
-//	bitree_ins_right(tree, tree->root->left, (const void *) &data[2]);
-}
+#include "exercise.h"
 
 int visit(struct bitree_node *node)
 {
@@ -175,31 +149,21 @@ void double_tree(struct bitree *tree)
 	}
 }
 
+
+#define DEFAULT_TREE_SIZE	5
+
 int main(int argc, char *argv[])
 {
-	struct bitree extree, *tree = &extree;
+	struct bitree *tree;
 	int cnt, depth, min;
 
-	bitree_init(tree, free);
+	tree = build(DEFAULT_TREE_SIZE);
+	if (!tree) {
+		fprintf(stderr, "build tree error\n");
+		exit(EXIT_FAILURE);
+	}
 
-	build123(tree);
-	mirror(tree->root);
-
-	cnt = preorder_traversal(tree->root, visit);
-	printf("preorder: total %d nodes traversed\n", cnt);
-
-	cnt = inorder_traversal(tree->root, visit);
-	printf("inorder: total %d nodes traversed\n", cnt);
-
-	cnt = postorder_traversal(tree->root, visit);
-	printf("postorder: total %d nodes traversed\n", cnt);
-
-	cnt = levelorder_traversal(tree->root, visit, &depth);
-	printf("levelorder: total %d nodes traversed, max depth:%d\n", cnt, depth);
-
-	printf("\ndoing mirror to the tree\n");
-	mirror(tree->root);
-
+//	mirror(tree->root);
 
 	cnt = preorder_traversal(tree->root, visit);
 	printf("preorder: total %d nodes traversed\n", cnt);
@@ -212,16 +176,38 @@ int main(int argc, char *argv[])
 
 	cnt = levelorder_traversal(tree->root, visit, &depth);
 	printf("levelorder: total %d nodes traversed, max depth:%d\n", cnt, depth);
-	
-	min = min_value(tree);
-	printf("min value: %d\n", min);
 
-	double_tree(tree);
-	cnt = levelorder_traversal(tree->root, visit, &depth);
-	printf("levelorder: total %d nodes traversed, max depth:%d\n", cnt, depth);
+//	printf("\ndoing mirror to the tree\n");
+//	mirror(tree->root);
+//
+//
+//	cnt = preorder_traversal(tree->root, visit);
+//	printf("preorder: total %d nodes traversed\n", cnt);
+//
+//	cnt = inorder_traversal(tree->root, visit);
+//	printf("inorder: total %d nodes traversed\n", cnt);
+//
+//	cnt = postorder_traversal(tree->root, visit);
+//	printf("postorder: total %d nodes traversed\n", cnt);
+//
+//	cnt = levelorder_traversal(tree->root, visit, &depth);
+//	printf("levelorder: total %d nodes traversed, max depth:%d\n", cnt, depth);
+//	
+//	min = min_value(tree);
+//	printf("min value: %d\n", min);
+//
+//	double_tree(tree);
+//	cnt = levelorder_traversal(tree->root, visit, &depth);
+//	printf("levelorder: total %d nodes traversed, max depth:%d\n", cnt, depth);
+//
+//	cnt = print_paths(tree->root);
+//	printf("total %d paths\n", cnt);
 
-	cnt = print_paths(tree->root);
-	printf("total %d paths\n", cnt);
+
+exit:
+	free(bitree_root(tree)->data);
+	bitree_destroy(tree);
+	free(tree);
 
 	exit(EXIT_SUCCESS);
 }

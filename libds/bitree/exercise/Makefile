@@ -1,4 +1,4 @@
-obj-prob += main.o
+obj-prob += main.o traverse.o build.o
 
 P := bitree_problems
 
