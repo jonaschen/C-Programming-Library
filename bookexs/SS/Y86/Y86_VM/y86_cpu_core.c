@@ -12,7 +12,7 @@ static void dump_instruction(struct y86_instruction *imem)
 	printf("\timmdediate value: 0x%08X\n", imem->value);
 }
 
-static uint32_t exec_branch(struct y86_cpu_core *core, struct y86_instruction *jcode)
+static int y86_exec_jump(struct y86_cpu_core *core, struct y86_instruction *jcode)
 {
 	unsigned char func;
 	uint32_t next_pc;
@@ -20,7 +20,7 @@ static uint32_t exec_branch(struct y86_cpu_core *core, struct y86_instruction *j
 	func = IFUNC(jcode->code);
 	
 	switch (func) {
-	case 0x0:
+	case Y86_JMP_DIRECT:
 		next_pc = jcode->value;
 		break;
 	default:
@@ -28,46 +28,53 @@ static uint32_t exec_branch(struct y86_cpu_core *core, struct y86_instruction *j
 		break;
 	}
 
-	return next_pc;
+	/* write back */
+	core->program_count = next_pc;
+
+	return 0;
+}
+
+static int y86_exec_irmov(struct y86_cpu_core *core, struct y86_instruction *imem)
+{
+	struct register_files gpr;	/* general purpose registers */
+	unsigned int *rb;
+
+	memcpy(&gpr, &core->gpr, sizeof(struct register_files));
+
+	rb = (unsigned int *) &gpr;
+
+	rb += OP_RB(imem->rindex);
+	*(rb) = imem->value;
+
+	/* write back */
+	memcpy(&core->gpr, &gpr, sizeof(struct register_files));
+
+	return 0;
 }
 
 static int y86_cpu_core_exec(struct y86_cpu_core *core, struct y86_instruction *imem)
 {
-	struct register_files gpr;	/* general purpose registers */
-	uint32_t next_pc = core->program_count;
-
-	//uint32_t status;               	/* program status */
-	//uint8_t condition;         	/* condition codes */
-
 	unsigned char icode;
-	unsigned int *rb;
 
 	dump_instruction(imem);
-
-	memcpy(&gpr, &core->gpr, sizeof(struct register_files));
 
 	icode = ICODE(imem->code);
 
 	switch (icode) {
-	case 0x1:
+	case Y86_INST_NOP:
 		break;
-	case 0x3:
-		rb = (unsigned int *) &gpr;
+	case Y86_INST_IRMOV:
+		y86_exec_irmov(core, imem);
+		break;
+	case Y86_INST_JMP:
+		y86_exec_jump(core, imem);
 
-		rb += OP_RB(imem->rindex);
-		*(rb) = imem->value;
 		break;
-	case 0x7:
-		next_pc = exec_branch(core, imem);
-		break;
-	case 0x0:
+	case Y86_INST_HALT:
 	default:
 		return -1;
 	}
 
-	/* write back */
-	memcpy(&core->gpr, &gpr, sizeof(struct register_files));
-	core->program_count = next_pc;
 
 	return 0;
 }
@@ -89,11 +96,11 @@ static int y86_cpu_core_fetch(struct y86_cpu_core *core, struct y86_instruction 
 	imem->code = code;
 
 	switch (ICODE(code)) {
-	case 0:
-	case 1:
+	case Y86_INST_HALT:
+	case Y86_INST_NOP:
 		break;
 
-	case 3:
+	case Y86_INST_IRMOV:
 		imem->rindex = memory[pc++];
 		for (i = 0; i < 4; i++)
 			value = (value << 8) + memory[pc++];
@@ -101,7 +108,7 @@ static int y86_cpu_core_fetch(struct y86_cpu_core *core, struct y86_instruction 
 		imem->value = value;
 		break;
 
-	case 7:
+	case Y86_INST_JMP:
 		for (i = 0; i < 4; i++)
 			value = (value << 8) + memory[pc++];
 
@@ -123,6 +130,7 @@ static void y86_cpu_core_init(struct y86_cpu_core *core, uint32_t init_pc)
 {
 	memset(core, 0, sizeof(*core));
 
+	/* TODO: set instruction memory, data memory, stack */
 	core->program_count = init_pc;
 
 	core->exec = y86_cpu_core_exec;

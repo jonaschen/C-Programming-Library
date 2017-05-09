@@ -3,6 +3,8 @@
 
 #include <stdint.h>
 
+#include "y86_instruction.h"
+
 enum y86_register_type {
 	Y86_GPR_EAX = 0,
 	Y86_GPR_ECX,
@@ -17,6 +19,7 @@ enum y86_register_type {
 };
 
 struct register_files {
+/* TODO: use an array? */
 	uint32_t eax;
 	uint32_t ecx;
 	uint32_t edx;
@@ -27,15 +30,6 @@ struct register_files {
 	uint32_t ebp;
 };
 
-struct y86_instruction {
-	unsigned char code;
-	unsigned char rindex;		/* index of registers rA, rB */
-	unsigned int value;
-};
-#define ICODE(code)	((code & 0xF0) >> 4)
-#define IFUNC(code)	(code & 0x0F)
-#define OP_RA(index)	((index & 0xF0) >> 4)
-#define OP_RB(index)	(index & 0x0F)
 
 struct y86_cpu_core {
 	struct register_files gpr;	/* general purpose registers */

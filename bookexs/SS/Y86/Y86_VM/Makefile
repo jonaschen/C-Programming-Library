@@ -1,7 +1,7 @@
 
 TARGET:= Y86_machine
 SOURCES:= main.c y86_cpu_core.c y86_system.c
-INCLUDE:= y86_cpu_core.h y86_system.h
+INCLUDE:= y86_cpu_core.h y86_system.h y86_instruction.h
 LDFLAG:=-lpthread
 
 all: $(SOURCES) $(INCLUDE)
